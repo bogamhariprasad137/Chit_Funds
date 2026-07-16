@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chit Groups | ChitLedger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Geist:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#e0e3e5",
+                        "surface-dim": "#d8dadc",
+                        "tertiary-fixed": "#ffddb8",
+                        "error": "#ba1a1a",
+                        "on-surface": "#191c1e",
+                        "on-secondary-container": "#00714d",
+                        "surface": "#f7f9fb",
+                        "on-primary-fixed": "#111c2d",
+                        "inverse-surface": "#2d3133",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#45474c",
+                        "outline": "#75777d",
+                        "primary-container": "#1e293b",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "inverse-primary": "#bcc7de",
+                        "secondary": "#006c49",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#091426",
+                        "on-background": "#191c1e",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "background": "#f7f9fb",
+                        "surface-container-high": "#e6e8ea",
+                        "on-primary-container": "#8590a6",
+                        "secondary-fixed": "#6ffbbe",
+                        "primary-fixed": "#d8e3fb",
+                        "primary-fixed-dim": "#bcc7de",
+                        "surface-tint": "#545f73",
+                        "tertiary": "#201100",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container": "#eceef0",
+                        "outline-variant": "#c5c6cd",
+                        "on-tertiary-container": "#c88000",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#6cf8bb",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-secondary-fixed-variant": "#005236",
+                        "tertiary-container": "#3c2300",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error": "#ffffff",
+                        "noir": "#1A1214",
+                        "berry": "#E7B7C2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "container-max": "1440px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "data-mono": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-caps": ["Geist"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #F8FAFC;
+        }
+        .noir-text { color: #1A1214; }
+        .berry-bg { background-color: #E7B7C2; }
+        .berry-border { border-color: #E7B7C2; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface flex min-h-screen">
+<!-- SideNavBar (Authority: JSON) -->
+<nav class="fixed left-0 top-0 h-full w-[280px] bg-surface-container-low dark:bg-primary flex flex-col pt-20 pb-8 px-4 z-40">
+<div class="mb-8 px-4">
+<h1 class="font-headline-md text-headline-md font-black text-primary dark:text-primary-fixed">ChitLedger</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant opacity-70">Asset Management</p>
+</div>
+<div class="flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+<!-- Navigation Items -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-primary-container transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-sm text-body-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-primary-container transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">pending_actions</span>
+<span class="font-body-sm text-body-sm">Pending</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-primary-container transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-sm text-body-sm">Payments</span>
+</a>
+<!-- Active Tab: Groups -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary dark:text-secondary-fixed font-bold border-r-4 border-secondary bg-surface-container-highest dark:bg-primary-container transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-body-sm text-body-sm">Groups</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-primary-container transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-body-sm text-body-sm">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-primary-container transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">new_releases</span>
+<span class="font-body-sm text-body-sm">Releases</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-primary-container transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-body-sm text-body-sm">Reports</span>
+</a>
+<div class="mt-auto pt-8">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-primary-container transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-sm text-body-sm">Settings</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- TopNavBar (Authority: JSON) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface-container-lowest dark:bg-primary-container border-b border-outline-variant dark:border-outline shadow-sm">
+<div class="flex items-center gap-4 ml-[280px]">
+<!-- Search bar is hidden as per JSON -->
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-body-md text-body-md hover:bg-surface-container-high dark:hover:bg-primary-fixed-dim transition-colors active:scale-95 duration-150">
+                Record Payment
+            </button>
+<button class="material-symbols-outlined text-primary dark:text-primary-fixed p-2 rounded-full hover:bg-surface-container-high transition-colors">language</button>
+<div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional corporate headshot of a female administrator with a friendly smile, dressed in a sleek charcoal business blazer. The lighting is soft and studio-quality, emphasizing a modern light-mode office aesthetic. The background is a clean, minimalist white wall with subtle shadows, reflecting authority and reliability in financial asset management." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1C7RFMaZti5XoZT4bu749fTcFeV-gkHhZZXZrP2xfhSE9t3XA2T5DDmuiZBg3FyuEPHJq3w4EIhmmUFtoVsvQXyBnZa3yNb8VTDBiAeyQh8541WabYiPa8mcwHqSpgFvkzBfdXfT7v46YtAXZYGMpYDSxp9TZ7jrLwvWaciJEkjYoGsVy63RG9Ne48KsPQgv_mjKSFxh5ll9CRjDCAorDU4dPcN7ksp_o6W75TrJMuwfChukTbMg4gL7e3V-8bquFono2b1EeyykJ"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-[280px] mt-16 p-margin-desktop w-full max-w-container-max mx-auto transition-all">
+<!-- Header Section -->
+<div class="flex justify-between items-center mb-8">
+<div>
+<h1 class="font-headline-lg text-headline-lg noir-text font-extrabold tracking-tight">Chit Groups</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Manage and monitor active chit funds</p>
+</div>
+<button class="berry-bg noir-text px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-sm hover:brightness-95 transition-all active:scale-95">
+<span class="material-symbols-outlined">add_circle</span>
+                Create Group
+            </button>
+</div>
+<!-- Segmented Control (Tabs) -->
+<div class="flex p-1 bg-surface-container-low rounded-xl w-fit mb-8">
+<button class="px-8 py-2.5 rounded-lg bg-white shadow-sm noir-text font-semibold transition-all">
+                Active
+            </button>
+<button class="px-8 py-2.5 rounded-lg text-on-surface-variant hover:text-noir font-medium transition-all">
+                Archived
+            </button>
+</div>
+<!-- Bento Layout / Data Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Main Data Table Container -->
+<div class="col-span-12 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-slate-50 noir-text border-b border-slate-200">
+<tr>
+<th class="px-6 py-4 font-label-caps text-label-caps uppercase tracking-wider">Group Name</th>
+<th class="px-6 py-4 font-label-caps text-label-caps uppercase tracking-wider text-right">Chit Amount</th>
+<th class="px-6 py-4 font-label-caps text-label-caps uppercase tracking-wider">Duration</th>
+<th class="px-6 py-4 font-label-caps text-label-caps uppercase tracking-wider text-center">Members</th>
+<th class="px-6 py-4 font-label-caps text-label-caps uppercase tracking-wider text-right">Installment</th>
+<th class="px-6 py-4 font-label-caps text-label-caps uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 font-label-caps text-label-caps"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg berry-bg flex items-center justify-center noir-text">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<div>
+<div class="noir-text font-bold font-body-md text-body-md">Alpha Fund 2023</div>
+<div class="text-[11px] text-on-surface-variant font-label-caps">ID: CH-2023-AF01</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-right noir-text">₹ 5,00,000</td>
+<td class="px-6 py-5 font-body-sm text-body-sm text-on-surface-variant">20 Months</td>
+<td class="px-6 py-5 text-center">
+<div class="flex flex-col items-center">
+<span class="font-body-md text-body-md font-semibold noir-text">25/30</span>
+<div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+<div class="h-full berry-bg" style="width: 83%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-right noir-text">₹ 25,000</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100 border border-slate-200">
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg berry-bg flex items-center justify-center noir-text">
+<span class="material-symbols-outlined">insights</span>
+</div>
+<div>
+<div class="noir-text font-bold font-body-md text-body-md">Prosperity Bridge</div>
+<div class="text-[11px] text-on-surface-variant font-label-caps">ID: CH-2023-PB04</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-right noir-text">₹ 10,00,000</td>
+<td class="px-6 py-5 font-body-sm text-body-sm text-on-surface-variant">24 Months</td>
+<td class="px-6 py-5 text-center">
+<div class="flex flex-col items-center">
+<span class="font-body-md text-body-md font-semibold noir-text">20/20</span>
+<div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+<div class="h-full bg-secondary" style="width: 100%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-right noir-text">₹ 41,667</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100 border border-slate-200">
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg berry-bg flex items-center justify-center noir-text">
+<span class="material-symbols-outlined">history_edu</span>
+</div>
+<div>
+<div class="noir-text font-bold font-body-md text-body-md">Legacy Wealth</div>
+<div class="text-[11px] text-on-surface-variant font-label-caps">ID: CH-2023-LW09</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-right noir-text">₹ 2,50,000</td>
+<td class="px-6 py-5 font-body-sm text-body-sm text-on-surface-variant">10 Months</td>
+<td class="px-6 py-5 text-center">
+<div class="flex flex-col items-center">
+<span class="font-body-md text-body-md font-semibold noir-text">15/15</span>
+<div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+<div class="h-full bg-secondary" style="width: 100%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-right noir-text">₹ 25,000</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100 border border-slate-200">
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center noir-text opacity-60">
+<span class="material-symbols-outlined">star_outline</span>
+</div>
+<div>
+<div class="noir-text font-bold font-body-md text-body-md">Omega Series</div>
+<div class="text-[11px] text-on-surface-variant font-label-caps">ID: CH-2024-OS01</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-right noir-text">₹ 15,00,000</td>
+<td class="px-6 py-5 font-body-sm text-body-sm text-on-surface-variant">30 Months</td>
+<td class="px-6 py-5 text-center">
+<div class="flex flex-col items-center">
+<span class="font-body-md text-body-md font-semibold noir-text">12/30</span>
+<div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
+<div class="h-full bg-slate-300" style="width: 40%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-data-mono text-data-mono text-right noir-text">₹ 50,000</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                        Pending
+                                    </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100 border border-slate-200">
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer/Pagination -->
+<div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing 4 of 12 Groups</span>
+<div class="flex gap-2">
+<button class="p-2 border border-slate-300 rounded-lg hover:bg-white transition-all disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined leading-none">chevron_left</span>
+</button>
+<button class="p-2 border border-slate-300 rounded-lg hover:bg-white transition-all">
+<span class="material-symbols-outlined leading-none">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Side Bento Widgets -->
+<div class="col-span-12 lg:col-span-4 grid gap-gutter">
+<!-- Summary Widget -->
+<div class="bg-noir p-6 rounded-xl text-white shadow-lg relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined !text-[120px]">account_balance</span>
+</div>
+<div class="relative z-10">
+<h3 class="font-label-caps text-label-caps text-berry uppercase mb-4">Total Group Capital</h3>
+<div class="font-display-lg text-[32px] leading-tight font-bold font-data-mono">₹ 32,50,000</div>
+<div class="mt-4 flex items-center gap-2 text-emerald-400">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="font-body-sm text-body-sm">+12.5% vs last month</span>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-8 bg-white border border-slate-200 p-6 rounded-xl shadow-sm flex items-center justify-between">
+<div class="flex gap-8">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Active Members</p>
+<p class="font-headline-md text-headline-md noir-text">72</p>
+</div>
+<div class="w-px h-12 bg-slate-200"></div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Total Installments</p>
+<p class="font-headline-md text-headline-md noir-text">₹ 1,41,667 <span class="text-xs font-normal">/mo</span></p>
+</div>
+</div>
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male investor in a light blue shirt, clean-shaven, representing financial stability. Bright office lighting, modern corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMSaL55tPvIJM37cGketiRY8yAQRBFmjxtSA6ra-pzJrJSVxCdwQSI7pk4dbZwy69WrXmWDssB-hV3YaXaQ0nCyZ1OViZCA7Y9wjnpl_mIll2algNy2rLrdSC067jWKYCY38jAJfvSaEb5ncsDwSOUFeA738otYcE_hsRX8uP8vG2toOmb_moYOcIvreFEVgh_BbhqbuUsxO3ua7jFfHdp--sUgItu73CEL_cl-GdrXYIb0ta1heSsX3375vDUg2ZaP_7kbRzBXXIG"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of a female finance professional with glasses, smiling confidently. Soft warm lighting, minimalist professional background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7biKbbxr7ZbBaT4OkDkPVFjyjGzz2jKeqg2hdrtEG1LjIwEwTHwCZRQxIXIxjgOebhR9y5iv7X2LDV1LOar-CkBU6pVL1KmouRPQeoQQOLj1EKTvPs80HnLKF6nlcvjhTsWBMC2AaX6hhd8DxNGGNP-jm-bmStKl0WOpanWKAxf07a5KvynxnOtRu_MhPAHyTdqogi5KDAEd0eZtSsCq3iAwpTKxLagSVXhX352BKfyGiq2ETUHyUgiIyZJwQK-hUejbcLQwN0Ta7"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of an older distinguished gentleman in a charcoal suit, representing legacy wealth and experience. High-end financial office setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUV_Ak-KkMK9uUeOJPYrCeriecDc4LKErvTHPV55ansVtcVyHS3uJ_YP-XeMOZCA69LSzPECor5qZ1Rzbja8grj_YQfH3brpSEMntW56B5A76eFGpns6BZGQwYAklkeN6Kld-02kMnRYweZsGcb7t2Y0BCnXGiKeSRFMczn4xcG5BFiC1iN5EqG8cgzlM-HVyGyv6sAv4XO3yX6sQ1OCqt2unvK7AiYFvJc2gzbpDYR03MokTXzTnO15dTuvYFmM8s5R6wDeKi9Pph"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-[10px] text-white font-bold">
+                        +69
+                    </div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple micro-interactions for buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.style.transform = 'scale(0.97)';
+            });
+            button.addEventListener('mouseup', () => {
+                button.style.transform = 'scale(1)';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'scale(1)';
+            });
+        });
+
+        // Tab switching logic (Visual only)
+        const tabs = document.querySelectorAll('.bg-surface-container-low button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('bg-white', 'shadow-sm', 'noir-text', 'font-semibold');
+                    t.classList.add('text-on-surface-variant', 'font-medium');
+                });
+                tab.classList.remove('text-on-surface-variant', 'font-medium');
+                tab.classList.add('bg-white', 'shadow-sm', 'noir-text', 'font-semibold');
+            });
+        });
+    </script>
+</body></html>

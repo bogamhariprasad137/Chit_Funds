@@ -57,7 +57,8 @@ CREATE TABLE admin_settings (
   business_name   text          NOT NULL,
   admin_email     text          NOT NULL,
   logo_url        text          NULL     DEFAULT NULL,
-  whatsapp_template text        NOT NULL,
+  whatsapp_template_en text        NOT NULL,
+  whatsapp_template_te text        NOT NULL,
   created_at      timestamptz   NOT NULL DEFAULT now(),
   updated_at      timestamptz   NOT NULL DEFAULT now(),
 

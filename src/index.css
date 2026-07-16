@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+Telugu:wght@100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6, .display-font {
+    font-family: 'Instrument Sans', 'Noto Sans Telugu', sans-serif;
+  }
+}

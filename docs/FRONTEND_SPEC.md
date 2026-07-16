@@ -20,7 +20,10 @@ ChitLedger employs a modern, professional, and minimal aesthetic tailored strict
 
 ## 3. Typography Scale
 **Base Font Family:** `Inter` (Google Fonts). Highly legible at small sizes and natively supports `tnum` (tabular numerals) for jitter-free vertical columns.
-**Display Font (H1/Titles):** `Instrument Sans` or `General Sans` (Google Fonts/Fontshare). A distinctive, premium sans-serif for page titles and hero numbers to add authoritative polish without bloating load times.
+**Display Font (H1/Titles):** `Instrument Sans` (Google Fonts). A distinctive, premium sans-serif for page titles and hero numbers to add authoritative polish without bloating load times.
+
+**Telugu Font Stack & Fallback Strategy:**
+Neither Inter nor Instrument Sans support Telugu glyphs natively. To guarantee perfect Telugu rendering without relying on unpredictable system defaults, the explicit font fallback stack must be defined as `font-family: 'Inter', 'Noto Sans Telugu', sans-serif;` (and similarly for the display font: `font-family: 'Instrument Sans', 'Noto Sans Telugu', sans-serif;`). This guarantees Latin characters always use the primary fonts, while any Telugu text automatically triggers Noto Sans Telugu for flawless shaping. Ensure `Noto Sans Telugu` is bundled or imported via Google Fonts alongside Inter and Instrument Sans.
 
 - **Monetary Figures:** Must explicitly apply Tailwind's `tabular-nums`, `tracking-tighter`, and `font-bold` for hero numbers (e.g., KPIs, Total Due) so they read as confident and authoritative. Standard money in tables uses `font-semibold`. Minimum mobile size: `13px`.
 - **Critical Formatting Rule:** All monetary values across the entire application MUST render using the Indian numbering system (lakh/crore grouping, e.g., ₹5,00,000, not ₹500,000). The mandated utility for this is `Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })`. *This specific 'en-IN' locale must be hardcoded for currency, completely ignoring the active `react-i18next` UI language toggle (e.g. do NOT pass 'te-IN' to the number formatter).*

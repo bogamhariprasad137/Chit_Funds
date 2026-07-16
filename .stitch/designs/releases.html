@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chit Releases | ChitLedger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Geist:wght@400;500;600&amp;family=Instrument+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#f7f9fb",
+                        "surface-bright": "#f7f9fb",
+                        "inverse-primary": "#bcc7de",
+                        "on-surface-variant": "#45474c",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#545f73",
+                        "primary-fixed": "#d8e3fb",
+                        "tertiary-container": "#3c2300",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "inverse-surface": "#2d3133",
+                        "primary": "#091426",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#6cf8bb",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#75777d",
+                        "on-surface": "#191c1e",
+                        "tertiary-fixed": "#ffddb8",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed-dim": "#bcc7de",
+                        "secondary": "#006c49",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-secondary-container": "#00714d",
+                        "surface-dim": "#d8dadc",
+                        "primary-container": "#1e293b",
+                        "on-primary-fixed": "#111c2d",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-container": "#c88000",
+                        "on-primary-container": "#8590a6",
+                        "on-tertiary-fixed": "#2a1700",
+                        "outline-variant": "#c5c6cd",
+                        "surface-variant": "#e0e3e5",
+                        "tertiary": "#201100",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "on-secondary-fixed": "#002113",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "base": "8px",
+                        "margin-desktop": "40px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-caps": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "data-mono": ["Geist"],
+                        "instrument": ["Instrument Sans", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-[#F9FAFB] text-on-background min-h-screen">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface-container-lowest border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary">ChitLedger</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-4 text-on-surface-variant font-body-md">
+<button class="hover:bg-surface-container-high transition-colors px-3 py-1 rounded-lg">Help</button>
+<button class="hover:bg-surface-container-high transition-colors px-3 py-1 rounded-lg active:scale-95 duration-150 flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">language</span>
+                    English
+                </button>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-body-md font-semibold active:scale-95 duration-150 transition-all shadow-sm">
+                Record Payment
+            </button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Admin Avatar" data-alt="A professional portrait of a financial administrator, wearing a crisp dark navy suit and looking confidently at the camera. The lighting is soft and corporate, set against a blurred office background with subtle blue and slate grey tones. High-end professional headshot style." src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[280px] flex flex-col pt-20 pb-8 px-4 z-40 bg-surface-container-low border-r border-outline-variant">
+<div class="mb-8 px-4">
+<h2 class="text-primary font-black text-headline-md">ChitLedger</h2>
+<p class="text-on-surface-variant text-body-sm opacity-70">Asset Management</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">pending_actions</span>
+<span class="font-body-sm">Pending</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-sm">Payments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-sm">Groups</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-body-sm">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold border-r-4 border-secondary bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">new_releases</span>
+<span class="font-body-sm">Releases</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-body-sm">Reports</span>
+</a>
+<div class="mt-auto">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-sm">Settings</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="ml-[280px] pt-24 px-margin-desktop pb-12 max-w-container-max mx-auto">
+<!-- Page Header -->
+<header class="mb-10">
+<h1 class="font-instrument text-[#0F172A] text-[32px] font-bold tracking-tight">Chit Releases</h1>
+<p class="text-slate-500 font-body-md mt-1">Manage monthly auctions and dividend distributions.</p>
+</header>
+<!-- Stats Overview (Asymmetric Layout Item) -->
+<div class="grid grid-cols-12 gap-6 mb-8">
+<div class="col-span-8 bg-white border border-slate-200 p-6 rounded-[16px] shadow-sm flex items-center justify-between">
+<div>
+<span class="font-label-caps text-slate-400 uppercase">Total Releases This Month</span>
+<div class="text-[32px] font-instrument font-bold text-slate-900 mt-1">₹12,40,000</div>
+</div>
+<div class="h-12 w-px bg-slate-100"></div>
+<div>
+<span class="font-label-caps text-slate-400 uppercase">Pending Auctions</span>
+<div class="text-[32px] font-instrument font-bold text-amber-600 mt-1">04</div>
+</div>
+<div class="h-12 w-px bg-slate-100"></div>
+<div>
+<span class="font-label-caps text-slate-400 uppercase">Avg. Dividend</span>
+<div class="text-[32px] font-instrument font-bold text-emerald-600 mt-1">₹3,240</div>
+</div>
+</div>
+<div class="col-span-4 bg-primary text-white p-6 rounded-[16px] shadow-sm flex flex-col justify-between overflow-hidden relative">
+<div class="relative z-10">
+<span class="font-label-caps text-slate-400 uppercase">Next Scheduled Auction</span>
+<div class="text-[20px] font-instrument font-semibold mt-2">Prosperity Bridge - Phase 2</div>
+<div class="text-slate-400 font-body-sm mt-1">Tomorrow at 10:30 AM</div>
+</div>
+<button class="relative z-10 mt-4 bg-white/10 hover:bg-white/20 transition-colors w-full py-2 rounded-lg text-body-sm font-semibold">View Calendar</button>
+<!-- Subtle geometric pattern background -->
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-[120px]">account_balance</span>
+</div>
+</div>
+</div>
+<!-- Data Table Container -->
+<section class="bg-white border border-slate-200 rounded-[16px] shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">filter_list</span>
+<span class="font-body-md font-semibold text-slate-700">Filter Releases</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-slate-900 focus:border-slate-900 w-64 outline-none" placeholder="Search group or winner..." type="text"/>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50/50">
+<th class="px-6 py-4 font-label-caps text-slate-500 font-semibold text-[11px] tracking-wider uppercase">Group</th>
+<th class="px-6 py-4 font-label-caps text-slate-500 font-semibold text-[11px] tracking-wider uppercase">Installment</th>
+<th class="px-6 py-4 font-label-caps text-slate-500 font-semibold text-[11px] tracking-wider uppercase">Auction Winner</th>
+<th class="px-6 py-4 font-label-caps text-slate-500 font-semibold text-[11px] tracking-wider uppercase text-right">Bid Amount</th>
+<th class="px-6 py-4 font-label-caps text-slate-500 font-semibold text-[11px] tracking-wider uppercase text-right">Dividend/Member</th>
+<th class="px-6 py-4 font-label-caps text-slate-500 font-semibold text-[11px] tracking-wider uppercase text-center">Status</th>
+<th class="px-6 py-4 font-label-caps text-slate-500 font-semibold text-[11px] tracking-wider uppercase text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-emerald-600 text-lg">layers</span>
+</div>
+<span class="font-body-md font-semibold text-slate-900">Alpha Fund 2023</span>
+</div>
+</td>
+<td class="px-6 py-5 text-slate-600 font-body-sm">Month 5/20</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden">
+<img alt="Ravi Kumar" data-alt="A profile photo of a male business professional in his 40s, Ravi Kumar, smiling warmly. He is in a brightly lit, modern environment with soft focus greenery in the background. The style is clean, corporate and high-end." src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+</div>
+<span class="font-body-md font-medium text-slate-800">Ravi Kumar</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-data-mono tabular-nums text-slate-900 font-semibold">₹50,000</td>
+<td class="px-6 py-5 text-right font-data-mono tabular-nums text-emerald-700">₹2,500</td>
+<td class="px-6 py-5 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                                    Released
+                                </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="px-4 py-1.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all hover:border-slate-300">
+                                    View Details
+                                </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-amber-600 text-lg">badge</span>
+</div>
+<span class="font-body-md font-semibold text-slate-900">Prosperity Bridge</span>
+</div>
+</td>
+<td class="px-6 py-5 text-slate-600 font-body-sm">Month 2/25</td>
+<td class="px-6 py-5">
+<span class="italic text-slate-400 font-body-sm">Pending Auction</span>
+</td>
+<td class="px-6 py-5 text-right font-data-mono tabular-nums text-slate-300">-</td>
+<td class="px-6 py-5 text-right font-data-mono tabular-nums text-slate-300">-</td>
+<td class="px-6 py-5 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                                    Pending
+                                </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="px-4 py-1.5 border border-amber-200 rounded-lg text-sm font-medium text-amber-700 hover:bg-amber-50 transition-all active:scale-95">
+                                    Record Release
+                                </button>
+</td>
+</tr>
+<!-- Row 3 (Extrapolated for visual depth) -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-600 text-lg">account_tree</span>
+</div>
+<span class="font-body-md font-semibold text-slate-900">Capital Growth Alpha</span>
+</div>
+</td>
+<td class="px-6 py-5 text-slate-600 font-body-sm">Month 12/20</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full overflow-hidden">
+<img alt="Anjali Devi" data-alt="A portrait of a middle-aged female business professional with a gentle smile, wearing a professional beige blouse. Background is a minimalist corporate setting with natural morning light. Aesthetic is warm, trustworthy, and clear." src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+</div>
+<span class="font-body-md font-medium text-slate-800">Anjali Devi</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-data-mono tabular-nums text-slate-900 font-semibold">₹62,000</td>
+<td class="px-6 py-5 text-right font-data-mono tabular-nums text-emerald-700">₹3,100</td>
+<td class="px-6 py-5 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                                    Released
+                                </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="px-4 py-1.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all hover:border-slate-300">
+                                    View Details
+                                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination -->
+<div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
+<div>Showing 1-3 of 12 releases</div>
+<div class="flex items-center gap-2">
+<button class="p-1 rounded hover:bg-slate-100 disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary text-white font-medium">1</button>
+<button class="w-8 h-8 rounded hover:bg-slate-100">2</button>
+<button class="w-8 h-8 rounded hover:bg-slate-100">3</button>
+<button class="p-1 rounded hover:bg-slate-100">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Secondary Information Section (Bento Grid Style) -->
+<div class="mt-8 grid grid-cols-3 gap-6">
+<div class="bg-emerald-50/50 border border-emerald-100 p-6 rounded-[16px]">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-emerald-600">verified</span>
+<h3 class="font-instrument font-bold text-slate-900">Audit Status</h3>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">All releases for the current month have been verified against banking transactions. No discrepancies found.</p>
+<div class="mt-4 flex items-center gap-2 text-emerald-700 font-bold text-xs">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                    VERIFIED OCT 2023
+                </div>
+</div>
+<div class="bg-white border border-slate-200 p-6 rounded-[16px] flex flex-col justify-between">
+<div>
+<h3 class="font-instrument font-bold text-slate-900 mb-1">Download Reports</h3>
+<p class="text-xs text-slate-500">Generate monthly release summary and individual group reports.</p>
+</div>
+<div class="mt-4 flex flex-wrap gap-2">
+<button class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold text-slate-700 transition-colors">
+<span class="material-symbols-outlined text-sm">download</span> PDF
+                    </button>
+<button class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold text-slate-700 transition-colors">
+<span class="material-symbols-outlined text-sm">table_view</span> Excel
+                    </button>
+</div>
+</div>
+<div class="bg-amber-50/50 border border-amber-100 p-6 rounded-[16px]">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-amber-600">notifications_active</span>
+<h3 class="font-instrument font-bold text-slate-900">Action Required</h3>
+</div>
+<p class="text-sm text-slate-600 mb-4">4 group auctions have not been finalized. Recording will expire in 48 hours.</p>
+<button class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-semibold transition-colors active:scale-95">
+                    Resolve Now
+                </button>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Subtle hover effect logic if needed beyond tailwind
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('mouseenter', () => {
+                    row.style.transform = 'translateX(4px)';
+                    row.style.transition = 'transform 0.2s ease-out';
+                });
+                row.addEventListener('mouseleave', () => {
+                    row.style.transform = 'translateX(0px)';
+                });
+            });
+        });
+    </script>
+</body></html>

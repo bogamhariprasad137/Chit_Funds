@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ChitLedger - Global Member List</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Geist:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Design System Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-high": "#e6e8ea",
+                    "surface-container-low": "#f2f4f6",
+                    "primary": "#091426",
+                    "primary-container": "#1e293b",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#3c475a",
+                    "on-primary-fixed": "#111c2d",
+                    "surface-bright": "#f7f9fb",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed": "#6ffbbe",
+                    "primary-fixed-dim": "#bcc7de",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-tint": "#545f73",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-secondary-fixed": "#002113",
+                    "on-error-container": "#93000a",
+                    "background": "#f7f9fb",
+                    "inverse-surface": "#2d3133",
+                    "on-tertiary-container": "#c88000",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "tertiary": "#201100",
+                    "tertiary-container": "#3c2300",
+                    "inverse-primary": "#bcc7de",
+                    "on-surface-variant": "#45474c",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-surface": "#191c1e",
+                    "on-secondary-fixed-variant": "#005236",
+                    "primary-fixed": "#d8e3fb",
+                    "on-primary-container": "#8590a6",
+                    "on-primary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#75777d",
+                    "surface-dim": "#d8dadc",
+                    "surface-container": "#eceef0",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e0e3e5",
+                    "outline-variant": "#c5c6cd",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-error": "#ffffff",
+                    "secondary-container": "#6cf8bb",
+                    "on-secondary-container": "#00714d",
+                    "surface": "#f7f9fb",
+                    "on-background": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "secondary": "#006c49",
+                    "noir": "#1A1214",
+                    "berry": "#E7B7C2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "base": "8px",
+                    "container-max": "1440px",
+                    "margin-desktop": "40px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Geist"],
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "data-mono": ["Geist"]
+            },
+            "fontSize": {
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 1;
+        }
+        .side-nav-active {
+            background-color: #E7B7C2;
+            color: #1A1214;
+            border-radius: 0.5rem;
+        }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        .noir-gradient-overlay {
+            background: linear-gradient(180deg, rgba(26, 18, 20, 0) 0%, rgba(26, 18, 20, 0.05) 100%);
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-full w-[280px] bg-noir text-berry flex flex-col pt-8 pb-8 px-6 z-40">
+<div class="mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-berry rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-noir" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-white leading-tight">ChitLedger</h1>
+<p class="font-body-sm text-body-sm text-berry/70 opacity-80">Asset Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 font-body-sm text-body-sm hover:bg-white/10 transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-body-sm text-body-sm hover:bg-white/10 transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">pending_actions</span>
+<span>Pending</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-body-sm text-body-sm hover:bg-white/10 transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">payments</span>
+<span>Payments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-body-sm text-body-sm hover:bg-white/10 transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">group</span>
+<span>Groups</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-body-sm text-body-sm side-nav-active group" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-bold">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-body-sm text-body-sm hover:bg-white/10 transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">new_releases</span>
+<span>Releases</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-body-sm text-body-sm hover:bg-white/10 transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">assessment</span>
+<span>Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-body-sm text-body-sm hover:bg-white/10 transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-white/10 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a financial administrator with a clean, minimalist background, lit with soft natural light, wearing a professional noir blazer, looking directly at the camera with a confident and helpful expression. High-end corporate portraiture style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAU-fEFohNwEE9nkp8WBgTVMBj_J69eOzyKRjjYJrM8WnF1BdlE5H6C5655FbwN2DOe_8m2jqdE6ZRPYCs03UpHcQ3Ph-tgjuZTPNN3zQtGIMqkrKY4UkLJf86dVp3cy23VyQ5MKTjp5-NOvhohOJnVtpqFvYEp8m9JzQ5JOwrv5aws58fR9YlEfPyT7KVFNsuZLTx0xnmsThMh_MnEYTRAz2MAcNoScK4GGKqY7YxUbh74Ylt-mXkiqKgoWR7ZRYWrTth0UdUXgxsQ"/>
+</div>
+<div class="overflow-hidden">
+<p class="font-label-caps text-label-caps text-white truncate">Admin User</p>
+<p class="font-body-sm text-body-sm text-berry/60 truncate">Premium Account</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] min-h-screen">
+<!-- Top Bar -->
+<header class="h-16 flex items-center justify-between px-margin-desktop bg-surface-container-lowest border-b border-outline-variant/30 sticky top-0 z-30">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">menu</span>
+<nav class="flex items-center gap-2 text-on-surface-variant font-body-sm">
+<span>Directory</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-medium">Members</span>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">language</button>
+<div class="h-8 w-px bg-outline-variant/50"></div>
+<button class="bg-noir text-berry px-4 py-2 rounded-lg font-label-caps flex items-center gap-2 hover:opacity-90 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                    Record Payment
+                </button>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="max-w-container-max mx-auto px-margin-desktop py-10">
+<!-- Header Section -->
+<div class="flex items-center justify-between mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">Members</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Manage and track your global member directory.</p>
+</div>
+<button class="bg-berry text-noir font-bold px-6 py-3 rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-all active:scale-95">
+<span class="material-symbols-outlined">person_add</span>
+<span>Add Member</span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="mb-10 group">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-noir transition-colors">search</span>
+<input class="w-full pl-12 pr-4 py-4 bg-white border border-outline-variant rounded-xl focus:outline-none focus:ring-2 focus:ring-noir focus:border-noir transition-all placeholder:text-outline-variant font-body-md shadow-sm" placeholder="Search members by name or phone..." type="text"/>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-white rounded-2xl border border-outline-variant overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Name</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Phone</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Group</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/40">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary font-bold font-body-sm">RK</div>
+<div>
+<p class="font-body-md font-semibold text-primary">Rajesh Kumar</p>
+<p class="text-[12px] text-on-surface-variant">Member ID: #CL-2023-001</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-data-mono text-data-mono text-on-surface">+91 9876543210</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-surface-container text-primary rounded-full text-[12px] font-medium border border-outline-variant/50">Alpha Fund 2023</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[12px] font-semibold border border-blue-100">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary font-bold font-body-sm">AS</div>
+<div>
+<p class="font-body-md font-semibold text-primary">Anita Singh</p>
+<p class="text-[12px] text-on-surface-variant">Member ID: #CL-2023-042</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-data-mono text-data-mono text-on-surface">+91 8765432109</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-surface-container text-primary rounded-full text-[12px] font-medium border border-outline-variant/50">Prosperity Bridge</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[12px] font-semibold border border-blue-100">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-error/5 flex items-center justify-center text-error font-bold font-body-sm">VS</div>
+<div>
+<p class="font-body-md font-semibold text-primary">Vikram Shah</p>
+<p class="text-[12px] text-on-surface-variant">Member ID: #CL-2023-089</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-data-mono text-data-mono text-on-surface">+91 7654321098</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-surface-container text-primary rounded-full text-[12px] font-medium border border-outline-variant/50">Alpha Fund 2023</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 text-[12px] font-semibold border border-red-100">
+<span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                                        Defaulted
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary font-bold font-body-sm">MV</div>
+<div>
+<p class="font-body-md font-semibold text-primary">Meera V.</p>
+<p class="text-[12px] text-on-surface-variant">Member ID: #CL-2023-112</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-data-mono text-data-mono text-on-surface">+91 6543210987</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-surface-container text-primary rounded-full text-[12px] font-medium border border-outline-variant/50">Legacy Wealth</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[12px] font-semibold border border-blue-100">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer/Pagination -->
+<div class="px-6 py-4 bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Showing 4 of 248 members</p>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-outline hover:border-primary hover:text-primary transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-noir text-berry text-[12px] font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface hover:bg-surface-container transition-all active:scale-95 text-[12px]">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface hover:bg-surface-container transition-all active:scale-95 text-[12px]">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-outline hover:border-primary hover:text-primary transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Dashboard Stats Summary (Mini Bento Grid for context) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+<div class="bg-white p-6 rounded-2xl border border-outline-variant flex items-center gap-5 shadow-sm">
+<div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">TOTAL ACTIVE</p>
+<h4 class="font-headline-md text-headline-md text-primary mt-1">214</h4>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border border-outline-variant flex items-center gap-5 shadow-sm">
+<div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">person_off</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">DEFAULT RISK</p>
+<h4 class="font-headline-md text-headline-md text-primary mt-1">34</h4>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border border-outline-variant flex items-center gap-5 shadow-sm">
+<div class="w-12 h-12 rounded-xl bg-berry/10 flex items-center justify-center text-noir">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">NEW JOINERS</p>
+<h4 class="font-headline-md text-headline-md text-primary mt-1">12 <span class="text-[12px] text-green-600 font-normal ml-1">+4%</span></h4>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Simple search filtering simulation
+        const searchInput = document.querySelector('input[type="text"]');
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            tableRows.forEach(row => {
+                const name = row.querySelector('p.font-body-md').textContent.toLowerCase();
+                const phone = row.querySelector('td.font-data-mono').textContent.toLowerCase();
+                if (name.includes(term) || phone.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Add member button visual feedback
+        const addMemberBtn = document.querySelector('button.bg-berry');
+        addMemberBtn.addEventListener('click', () => {
+            addMemberBtn.classList.add('opacity-80');
+            setTimeout(() => addMemberBtn.classList.remove('opacity-80'), 150);
+        });
+    </script>
+</body></html>

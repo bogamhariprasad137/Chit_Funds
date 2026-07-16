@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#00714d",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#3c2300",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#d8dadc",
+                        "surface-container": "#eceef0",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-tint": "#545f73",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-surface": "#191c1e",
+                        "primary-fixed": "#d8e3fb",
+                        "surface-container-low": "#f2f4f6",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#45474c",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "on-primary": "#ffffff",
+                        "primary": "#091426",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-high": "#e6e8ea",
+                        "on-primary-fixed": "#111c2d",
+                        "inverse-surface": "#2d3133",
+                        "on-background": "#191c1e",
+                        "outline-variant": "#c5c6cd",
+                        "on-primary-container": "#8590a6",
+                        "primary-container": "#1e293b",
+                        "on-secondary-fixed-variant": "#005236",
+                        "outline": "#75777d",
+                        "on-secondary-fixed": "#002113",
+                        "surface": "#f7f9fb",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary-container": "#c88000",
+                        "secondary": "#006c49",
+                        "tertiary": "#201100",
+                        "primary-fixed-dim": "#bcc7de",
+                        "inverse-primary": "#bcc7de",
+                        "secondary-container": "#6cf8bb",
+                        "secondary-fixed": "#6ffbbe",
+                        "background": "#f7f9fb",
+                        "noir": "#1A1214",
+                        "berry": "#E7B7C2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "container-max": "1440px",
+                        "margin-desktop": "40px",
+                        "base": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Geist"],
+                        "data-mono": ["Geist"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+        body {
+            background-color: #f7f9fb;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        .drawer-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+        }
+        .nav-item-active {
+            background-color: #E7B7C2;
+            color: #1A1214;
+        }
+        .nav-item-inactive {
+            color: rgba(231, 183, 194, 0.6);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Top App Bar -->
+<header class="w-full sticky top-0 bg-surface flex items-center justify-between px-margin-mobile h-16 w-full border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 transition-transform text-noir">
+<span class="material-symbols-outlined text-[28px]">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ChitLedger</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional close-up studio portrait of a financial administrator, looking confident and approachable. The lighting is soft and high-key, emphasizing a clean and professional corporate aesthetic with a minimalist gray background that aligns with the ChitLedger brand identity." src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+</div>
+</div>
+</header>
+<!-- Main Content (Background blurred/darkened) -->
+<main class="p-margin-mobile space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+<p class="font-label-caps text-label-caps text-on-surface-variant">TOTAL BALANCE</p>
+<p class="font-headline-md text-headline-md text-noir mt-1">$45,280</p>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+<p class="font-label-caps text-label-caps text-on-surface-variant">ACTIVE GROUPS</p>
+<p class="font-headline-md text-headline-md text-noir mt-1">12</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-headline-md text-headline-md text-noir">Recent Activity</h2>
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between py-2 border-b border-slate-100">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container">payments</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-noir">Group Payout #88</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">2 mins ago</p>
+</div>
+</div>
+<p class="font-data-mono text-data-mono text-secondary">+$1,200.00</p>
+</div>
+</div>
+</div>
+<div class="w-full h-48 rounded-xl bg-cover bg-center" data-alt="A wide-angle conceptual architectural shot of a modern, sleek financial district with glass skyscrapers reflecting a deep twilight sky. The scene is dominated by deep obsidian and muted berry tones, creating a professional and premium atmosphere. The lighting is sophisticated, with sharp highlights and deep, clean shadows, embodying the stability and authority of the ChitLedger brand." style="background-image: url('https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg')"></div>
+</main>
+<!-- Navigation Drawer & Backdrop -->
+<div class="fixed inset-0 z-50 flex">
+<!-- Drawer Panel -->
+<aside class="w-[80%] bg-noir h-full flex flex-col shadow-2xl transition-transform duration-300 transform translate-x-0">
+<!-- Drawer Header -->
+<div class="px-6 py-8">
+<h1 class="font-headline-md text-headline-md font-bold text-berry">ChitLedger</h1>
+</div>
+<!-- Scrollable Nav List -->
+<nav class="flex-1 px-4 py-2 space-y-1 overflow-y-auto">
+<!-- Dashboard (Active) -->
+<a class="nav-item-active flex items-center gap-4 px-4 py-3 rounded-full transition-all duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-weight="fill">dashboard</span>
+<span class="font-body-md text-body-md font-semibold">Dashboard</span>
+</a>
+<!-- Inactive Items -->
+<a class="nav-item-inactive flex items-center gap-4 px-4 py-3 rounded-full hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">pending_actions</span>
+<span class="font-body-md text-body-md">Pending</span>
+</a>
+<a class="nav-item-inactive flex items-center gap-4 px-4 py-3 rounded-full hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-md text-body-md">Payments</span>
+</a>
+<a class="nav-item-inactive flex items-center gap-4 px-4 py-3 rounded-full hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-body-md text-body-md">Groups</span>
+</a>
+<a class="nav-item-inactive flex items-center gap-4 px-4 py-3 rounded-full hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">person_add</span>
+<span class="font-body-md text-body-md">Members</span>
+</a>
+<a class="nav-item-inactive flex items-center gap-4 px-4 py-3 rounded-full hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">release_alert</span>
+<span class="font-body-md text-body-md">Releases</span>
+</a>
+<a class="nav-item-inactive flex items-center gap-4 px-4 py-3 rounded-full hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Reports</span>
+</a>
+<a class="nav-item-inactive flex items-center gap-4 px-4 py-3 rounded-full hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<!-- Footer Section -->
+<div class="mt-auto border-t border-white/10 p-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border-2 border-berry overflow-hidden p-0.5">
+<img class="w-full h-full rounded-full object-cover" data-alt="A minimalist avatar icon or stylized photographic portrait of a corporate executive in a dark suit. The style is sharp and high-contrast, fitting the professional 'Admin Ledger' persona. The image is framed within a circle, set against a dark, noir background that emphasizes the rich berry-colored accent border." src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+</div>
+<div class="flex flex-col">
+<span class="text-berry font-semibold text-body-md">Admin Ledger</span>
+<span class="text-white/40 text-xs font-label-caps tracking-wider uppercase">System Auditor</span>
+</div>
+<button class="ml-auto text-white/40 hover:text-berry transition-colors">
+<span class="material-symbols-outlined">logout</span>
+</button>
+</div>
+</aside>
+<!-- Backdrop Overlay -->
+<div class="flex-1 drawer-overlay cursor-pointer" id="backdrop"></div>
+</div>
+<!-- Script for interactive micro-animations -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const backdrop = document.getElementById('backdrop');
+            const drawer = backdrop.previousElementSibling;
+            
+            // Simple close interaction for demo
+            backdrop.addEventListener('click', () => {
+                drawer.style.transform = 'translateX(-100%)';
+                backdrop.parentElement.style.opacity = '0';
+                setTimeout(() => {
+                    backdrop.parentElement.style.display = 'none';
+                }, 300);
+            });
+
+            // Smooth scaling effect for nav items
+            const navItems = document.querySelectorAll('nav a');
+            navItems.forEach(item => {
+                item.addEventListener('touchstart', () => {
+                    item.style.transform = 'scale(0.98)';
+                });
+                item.addEventListener('touchend', () => {
+                    item.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body></html>

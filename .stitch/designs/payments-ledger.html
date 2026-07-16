@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Payment Ledger | ChitLedger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Geist:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e0e3e5",
+                    "on-secondary-fixed": "#002113",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#45474c",
+                    "on-primary-fixed-variant": "#3c475a",
+                    "background": "#f7f9fb",
+                    "outline-variant": "#c5c6cd",
+                    "primary-fixed-dim": "#bcc7de",
+                    "primary": "#091426",
+                    "secondary-fixed": "#6ffbbe",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed": "#ffddb8",
+                    "surface-container": "#eceef0",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-container-high": "#e6e8ea",
+                    "surface": "#f7f9fb",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#d8dadc",
+                    "surface-bright": "#f7f9fb",
+                    "primary-fixed": "#d8e3fb",
+                    "inverse-surface": "#2d3133",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#3c2300",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-tertiary-container": "#c88000",
+                    "on-surface": "#191c1e",
+                    "outline": "#75777d",
+                    "primary-container": "#1e293b",
+                    "on-primary-container": "#8590a6",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-tint": "#545f73",
+                    "secondary": "#006c49",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-primary-fixed": "#111c2d",
+                    "on-tertiary-fixed": "#2a1700",
+                    "tertiary": "#201100",
+                    "on-background": "#191c1e",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#f2f4f6",
+                    "secondary-container": "#6cf8bb",
+                    "on-secondary-container": "#00714d",
+                    "inverse-primary": "#bcc7de",
+                    "noir": "#1A1214",
+                    "berry": "#E7B7C2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "base": "8px",
+                    "margin-mobile": "16px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "data-mono": ["Geist"],
+                    "headline-md": ["Inter"],
+                    "label-caps": ["Geist"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .data-mono { font-family: 'Geist', monospace; font-variant-numeric: tabular-nums; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c5c6cd; border-radius: 10px; }
+        .noir-sidebar { background-color: #1A1214; color: #E7B7C2; }
+        .berry-sidebar { background-color: #E7B7C2; color: #1A1214; }
+        .table-zebra tr:nth-child(even) { background-color: #f7f9fb; }
+        .table-hover tr:hover { background-color: #eceef0; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-hidden">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface-container-lowest border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Payment Ledger</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">language</span>
+<span class="font-body-md text-on-surface-variant">English</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg font-bold text-body-sm hover:bg-primary-container transition-colors active:scale-95 duration-150">
+                Record Payment
+            </button>
+<div class="h-10 w-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional high-resolution headshot of a corporate bank administrator with a friendly expression. The lighting is bright and even, reflecting a modern light-mode financial application aesthetic. The background is a soft, out-of-focus office setting in shades of slate and white, maintaining a clean and authoritative professional look." src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+</div>
+</div>
+</header>
+<div class="flex h-screen pt-16">
+<!-- Left Sidebar (Noir) -->
+<aside class="w-[280px] noir-sidebar flex flex-col pt-8 px-4 z-40 transition-all">
+<div class="mb-10 px-4">
+<h2 class="font-headline-md text-headline-md font-black text-berry">ChitLedger</h2>
+<p class="font-body-sm text-body-sm opacity-70">Asset Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">pending_actions</span>
+<span class="font-body-sm">Pending</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-berry font-bold border-r-4 border-berry bg-white/10" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-body-sm">Payments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-sm">Groups</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-body-sm">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">new_releases</span>
+<span class="font-body-sm">Releases</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-body-sm">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-white/10 pt-4 pb-6 px-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-berry flex items-center justify-center text-noir font-bold text-xs">
+                        CL
+                    </div>
+<div>
+<p class="text-[12px] font-bold leading-tight">System Status</p>
+<p class="text-[10px] opacity-60">Operational v2.4.1</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 bg-background overflow-y-auto p-gutter max-w-container-max mx-auto">
+<!-- Dashboard Stats Summary (Small Bento) -->
+<div class="grid grid-cols-12 gap-gutter mb-8">
+<div class="col-span-12 md:col-span-4 bg-white p-6 rounded-xl border border-outline-variant shadow-sm">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">COLLECTED TODAY</p>
+<div class="flex items-end gap-2">
+<span class="font-display-lg text-display-lg text-noir data-mono">₹81,667</span>
+<span class="text-secondary flex items-center font-bold text-body-sm mb-2">
+<span class="material-symbols-outlined text-sm">arrow_upward</span> 12%
+                        </span>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 bg-white p-6 rounded-xl border border-outline-variant shadow-sm">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">PENDING CLEARANCE</p>
+<div class="flex items-end gap-2">
+<span class="font-display-lg text-display-lg text-noir data-mono">₹12,400</span>
+<span class="text-error flex items-center font-bold text-body-sm mb-2">
+<span class="material-symbols-outlined text-sm">arrow_downward</span> 4%
+                        </span>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 bg-white p-6 rounded-xl border border-outline-variant shadow-sm">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">TOTAL RECEIPTS</p>
+<div class="flex items-end gap-2">
+<span class="font-display-lg text-display-lg text-noir data-mono">1,248</span>
+</div>
+</div>
+</div>
+<!-- Main Ledger Table -->
+<section class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="flex items-center justify-between p-6 border-b border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-noir">Transaction History</h3>
+<div class="flex gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-sm">search</span>
+<input class="pl-10 pr-4 py-2 border border-outline-variant rounded-lg text-body-sm focus:ring-1 focus:ring-noir focus:border-noir outline-none w-64" placeholder="Search receipts..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-body-sm font-semibold hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span> Filter
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left table-zebra table-hover">
+<thead class="bg-surface-container-low text-noir">
+<tr>
+<th class="px-6 py-4 font-label-caps text-label-caps">RECEIPT #</th>
+<th class="px-6 py-4 font-label-caps text-label-caps">DATE</th>
+<th class="px-6 py-4 font-label-caps text-label-caps">MEMBER</th>
+<th class="px-6 py-4 font-label-caps text-label-caps">GROUP</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-center">MODE</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-right">AMOUNT</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-center">STATUS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="transition-colors group">
+<td class="px-6 py-3 font-data-mono text-body-sm">RCT-2023-0001</td>
+<td class="px-6 py-3 font-data-mono text-body-sm whitespace-nowrap">24 Oct 2023, 14:30</td>
+<td class="px-6 py-3 font-body-sm font-semibold">Rajesh Kumar</td>
+<td class="px-6 py-3 font-body-sm">Alpha Fund 2023</td>
+<td class="px-6 py-3 text-center">
+<span class="px-2 py-1 rounded bg-surface-container text-[10px] font-bold uppercase">UPI</span>
+</td>
+<td class="px-6 py-3 font-data-mono text-body-sm text-right font-bold">₹15,000</td>
+<td class="px-6 py-3 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Success
+                                    </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="transition-colors group">
+<td class="px-6 py-3 font-data-mono text-body-sm">RCT-2023-0002</td>
+<td class="px-6 py-3 font-data-mono text-body-sm whitespace-nowrap">24 Oct 2023, 11:20</td>
+<td class="px-6 py-3 font-body-sm font-semibold">Anita Singh</td>
+<td class="px-6 py-3 font-body-sm">Prosperity Bridge</td>
+<td class="px-6 py-3 text-center">
+<span class="px-2 py-1 rounded bg-surface-container text-[10px] font-bold uppercase">Cash</span>
+</td>
+<td class="px-6 py-3 font-data-mono text-body-sm text-right font-bold">₹41,667</td>
+<td class="px-6 py-3 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Success
+                                    </span>
+</td>
+</tr>
+<!-- Row 3 (Voided) -->
+<tr class="transition-colors text-outline group">
+<td class="px-6 py-3 font-data-mono text-body-sm">RCT-2023-0003</td>
+<td class="px-6 py-3 font-data-mono text-body-sm whitespace-nowrap">23 Oct 2023, 16:45</td>
+<td class="px-6 py-3 font-body-sm font-semibold">Vikram Shah</td>
+<td class="px-6 py-3 font-body-sm">Alpha Fund 2023</td>
+<td class="px-6 py-3 text-center">
+<span class="px-2 py-1 rounded bg-surface-container/50 text-[10px] font-bold uppercase">UPI</span>
+</td>
+<td class="px-6 py-3 font-data-mono text-body-sm text-right line-through">₹25,000</td>
+<td class="px-6 py-3 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[11px] font-bold">
+                                        Voided
+                                    </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="transition-colors group">
+<td class="px-6 py-3 font-data-mono text-body-sm">RCT-2023-0004</td>
+<td class="px-6 py-3 font-data-mono text-body-sm whitespace-nowrap">23 Oct 2023, 09:15</td>
+<td class="px-6 py-3 font-body-sm font-semibold">Meera V.</td>
+<td class="px-6 py-3 font-body-sm">Legacy Wealth</td>
+<td class="px-6 py-3 text-center">
+<span class="px-2 py-1 rounded bg-surface-container text-[10px] font-bold uppercase">Bank</span>
+</td>
+<td class="px-6 py-3 font-data-mono text-body-sm text-right font-bold">₹25,000</td>
+<td class="px-6 py-3 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Success
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 bg-surface-container-low border-t border-outline-variant flex items-center justify-between">
+<p class="text-body-sm text-on-surface-variant">Showing 4 of 1,248 transactions</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 border border-outline-variant rounded bg-white hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="px-3 py-1 border border-noir rounded bg-noir text-white text-xs font-bold">1</button>
+<button class="px-3 py-1 border border-outline-variant rounded bg-white text-xs font-medium hover:bg-surface-container transition-colors">2</button>
+<button class="px-3 py-1 border border-outline-variant rounded bg-white text-xs font-medium hover:bg-surface-container transition-colors">3</button>
+<button class="px-3 py-1 border border-outline-variant rounded bg-white hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</section>
+</main>
+<!-- Right Sidebar (Berry) -->
+<aside class="w-[320px] berry-sidebar flex flex-col p-6 z-40 hidden xl:flex border-l border-white/20">
+<div class="mb-8">
+<h4 class="font-label-caps text-label-caps text-noir/60 mb-6">QUICK ACTIONS</h4>
+<div class="space-y-4">
+<button class="w-full py-3 bg-noir text-berry rounded-lg font-bold text-body-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">add_circle</span> New Collection
+                    </button>
+<button class="w-full py-3 border-2 border-noir text-noir rounded-lg font-bold text-body-sm flex items-center justify-center gap-2 hover:bg-noir/5 transition-colors">
+<span class="material-symbols-outlined text-sm">file_download</span> Export Ledger
+                    </button>
+</div>
+</div>
+<div class="mb-8 flex-1">
+<h4 class="font-label-caps text-label-caps text-noir/60 mb-4">REVENUE DISTRIBUTION</h4>
+<div class="bg-noir/5 rounded-xl p-4 border border-noir/10">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold">Fund Alpha</span>
+<span class="text-xs data-mono">65%</span>
+</div>
+<div class="w-full bg-noir/10 h-2 rounded-full mb-4">
+<div class="bg-noir h-2 rounded-full w-[65%]"></div>
+</div>
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold">Prosperity Br.</span>
+<span class="text-xs data-mono">25%</span>
+</div>
+<div class="w-full bg-noir/10 h-2 rounded-full mb-4">
+<div class="bg-noir h-2 rounded-full w-[25%]"></div>
+</div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold">Legacy Wealth</span>
+<span class="text-xs data-mono">10%</span>
+</div>
+<div class="w-full bg-noir/10 h-2 rounded-full">
+<div class="bg-noir h-2 rounded-full w-[10%]"></div>
+</div>
+</div>
+</div>
+<div class="bg-noir p-5 rounded-xl text-berry">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-berry/20 rounded-lg">
+<span class="material-symbols-outlined text-berry">shield</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-wider">Secure Ledger</span>
+</div>
+<p class="text-[11px] leading-relaxed opacity-80 mb-4">
+                    All transactions are end-to-end encrypted and verified via node confirmation. 256-bit AES encryption active.
+                </p>
+<div class="h-20 w-full bg-cover bg-center rounded opacity-20" data-alt="A subtle, minimalist digital texture pattern of fine dots and lines in noir and berry tones, suggesting financial data streams and secure technological nodes. The design is abstract, clean, and fits the sophisticated corporate minimalism aesthetic of the application." style="background-image: url('https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg')"></div>
+</div>
+</aside>
+</div>
+<!-- Micro-interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Table row hover effect enhancements
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('mouseenter', () => {
+                    if (!row.classList.contains('text-outline')) {
+                        row.style.transform = 'translateX(4px)';
+                        row.style.transition = 'transform 0.2s ease-out';
+                    }
+                });
+                row.addEventListener('mouseleave', () => {
+                    row.style.transform = 'translateX(0px)';
+                });
+            });
+
+            // Active state simulation
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    // This is just for demonstration since we are on the Payments page
+                    if(link.textContent.trim() !== 'Payments') {
+                        // e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+</body></html>
