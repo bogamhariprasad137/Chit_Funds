@@ -86,14 +86,106 @@ export function MemberDetail() {
 
   const handleWhatsAppReminder = async () => {
     if (!member) return;
-    const { data: adminSettings } = await supabase.from('admin_settings').select('whatsapp_template_te').single();
-    let template = adminSettings?.whatsapp_template_te || "Namaste {member_name}, please pay your due amount of ₹{total_due}.";
-    
-    template = template
-      .replace('{member_name}', member.name)
-      .replace('{total_due}', totalPending.toString());
 
-    window.open(`https://wa.me/${member.phone}?text=${encodeURIComponent(template)}`, '_blank');
+    try {
+      // Step 1: Fresh lookup of member details to ensure phone is correct
+      const { data: dbMember, error: memberError } = await supabase
+        .from('members')
+        .select('name, phone')
+        .eq('id', member.id)
+        .single();
+
+      if (memberError || !dbMember) {
+        alert("Reminder failed: Could not retrieve member details from the database.");
+        return;
+      }
+
+      if (!dbMember.phone) {
+        alert(`Validation Error: ${dbMember.name} does not have a registered phone number.`);
+        return;
+      }
+
+      // Step 2: Fetch target active unpaid installment from Supabase (no mock/cache)
+      const { data: pendingInstallments, error: pendingError } = await supabase
+        .from('pending_installments_view')
+        .select('*')
+        .eq('member_id', member.id)
+        .order('installment_month', { ascending: true }); // Get earliest pending first
+
+      if (pendingError || !pendingInstallments || pendingInstallments.length === 0) {
+        alert("No pending installment found for this member.");
+        return;
+      }
+
+      const installmentRecord = pendingInstallments[0];
+
+      // Step 3: Retrieve group details to get the monthly installment amount
+      const { data: group, error: groupError } = await supabase
+        .from('chit_groups')
+        .select('installment_amount, group_name')
+        .eq('id', installmentRecord.group_id)
+        .single();
+
+      if (groupError || !group) {
+        alert("Reminder failed: Could not fetch chit group configuration details.");
+        return;
+      }
+
+      // Get templates from System Settings
+      const { data: adminSettings } = await supabase
+        .from('admin_settings')
+        .select('whatsapp_template_te, whatsapp_template_en')
+        .single();
+
+      // Retrieve default/configured template
+      const defaultTeluguTemplate = `ముందుగా చిట్టి సభ్యులందరికీ నమస్కారములు\n\nఈ {month} చిట్టి పేమెంటు {payment}\n\nసకాలంలో చిట్టి డబ్బులు చెల్లించండి🙏`;
+      let template = adminSettings?.whatsapp_template_te || defaultTeluguTemplate;
+
+      // Extract month name from dynamic installment_month
+      let monthName = "";
+      try {
+        const d = new Date(installmentRecord.installment_month);
+        if (!isNaN(d.getTime())) {
+          monthName = d.toLocaleDateString("en-US", { month: "long" }); // e.g. "July"
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      if (!monthName) {
+        alert("Reminder failed: Invalid or missing payment month in database.");
+        return;
+      }
+
+      // Format currency values dynamically
+      const installmentAmountStr = formatCurrency(group.installment_amount);
+      const totalDueStr = formatCurrency(installmentRecord.total_due);
+      const penaltyAmountStr = formatCurrency(installmentRecord.penalty_amount || 0);
+
+      // Perform dynamic placeholder replacement
+      let message = template
+        .replace(/{member_name}/g, dbMember.name)
+        .replace(/{group_name}/g, group.group_name)
+        .replace(/{chit_name}/g, group.group_name)
+        .replace(/{month}/g, monthName)
+        .replace(/{due_month}/g, monthName)
+        .replace(/{installment_month}/g, monthName)
+        .replace(/{payment}/g, installmentAmountStr)
+        .replace(/{installment}/g, installmentAmountStr)
+        .replace(/{total}/g, totalDueStr)
+        .replace(/{total_due}/g, totalDueStr)
+        .replace(/{amount_due}/g, totalDueStr)
+        .replace(/{penalty}/g, penaltyAmountStr);
+
+      // URL encode the Telugu Unicode string correctly
+      const formattedPhone = dbMember.phone.replace(/\D/g, ""); // strip non-digits
+      const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+
+    } catch (err: any) {
+      console.error(err);
+      alert("An unexpected error occurred while compiling the reminder.");
+    }
   };
 
   if (loading) {

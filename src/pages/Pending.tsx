@@ -35,12 +35,12 @@ export function Pending() {
 
   const handleSendReminder = async (payment: any) => {
     try {
-      if (!payment.installment_month) {
-        alert("Reminder failed: Installment month is missing.");
+      if (!payment || !payment.member_id) {
+        alert("Reminder failed: Member identifier is missing.");
         return;
       }
 
-      // 1. Fetch Member Details
+      // Step 1: Fresh lookup of member details to ensure phone is up to date
       const { data: member, error: memberError } = await supabase
         .from('members')
         .select('name, phone')
@@ -48,54 +48,96 @@ export function Pending() {
         .single();
 
       if (memberError || !member) {
-        alert("Reminder failed: Could not fetch member details.");
+        alert("Reminder failed: Could not retrieve member details from the database.");
         return;
       }
 
       if (!member.phone) {
-        alert(`Reminder failed: ${member.name} does not have a phone number registered.`);
+        alert(`Validation Error: ${member.name} does not have a registered phone number.`);
         return;
       }
 
-      // 2. Fetch Group Details (for Monthly Installment)
+      // Step 2: Fetch target active unpaid installment from Supabase (no mock/cache)
+      const { data: pendingInstallments, error: pendingError } = await supabase
+        .from('pending_installments_view')
+        .select('*')
+        .eq('member_id', payment.member_id)
+        .eq('group_id', payment.group_id)
+        .eq('installment_month', payment.installment_month);
+
+      if (pendingError || !pendingInstallments || pendingInstallments.length === 0) {
+        alert("No pending installment found for this member, group, and month.");
+        return;
+      }
+
+      const installmentRecord = pendingInstallments[0];
+
+      // Step 3: Retrieve group details to get the monthly installment amount
       const { data: group, error: groupError } = await supabase
         .from('chit_groups')
-        .select('installment_amount')
+        .select('installment_amount, group_name')
         .eq('id', payment.group_id)
         .single();
 
       if (groupError || !group) {
-        alert("Reminder failed: Could not fetch chit group details.");
+        alert("Reminder failed: Could not fetch chit group configuration details.");
         return;
       }
 
-      // 3. Format month name
+      // Get templates from System Settings
+      const { data: adminSettings } = await supabase
+        .from('admin_settings')
+        .select('whatsapp_template_te, whatsapp_template_en')
+        .single();
+
+      // Retrieve default/configured template
+      const defaultTeluguTemplate = `ముందుగా చిట్టి సభ్యులందరికీ నమస్కారములు\n\nఈ {month} చిట్టి పేమెంటు {payment}\n\nసకాలంలో చిట్టి డబ్బులు చెల్లించండి🙏`;
+      let template = adminSettings?.whatsapp_template_te || defaultTeluguTemplate;
+
+      // Extract month name from dynamic installment_month (stored in database)
       let monthName = "";
       try {
-        const d = new Date(payment.installment_month);
+        const d = new Date(installmentRecord.installment_month);
         if (!isNaN(d.getTime())) {
-          monthName = d.toLocaleDateString("en-US", { month: "long" }); // e.g., "July"
+          monthName = d.toLocaleDateString("en-US", { month: "long" }); // e.g. "July"
         }
       } catch (err) {
         console.error(err);
       }
 
       if (!monthName) {
-        alert("Reminder failed: Invalid installment month value.");
+        alert("Reminder failed: Invalid or missing payment month in database.");
         return;
       }
 
-      // 4. Construct Telugu message
-      const paymentAmountStr = formatCurrency(group.installment_amount);
-      const textMessage = `ముందుగా చిట్టి సభ్యులందరికీ నమస్కారములు\n\nఈ ${monthName} చిట్టి పేమెంటు ${paymentAmountStr}\n\nసకాలంలో చిట్టి డబ్బులు చెల్లించండి🙏`;
+      // Format currency values dynamically
+      const installmentAmountStr = formatCurrency(group.installment_amount);
+      const totalDueStr = formatCurrency(installmentRecord.total_due);
+      const penaltyAmountStr = formatCurrency(installmentRecord.penalty_amount || 0);
 
-      // 5. Open WhatsApp
+      // Perform dynamic placeholder replacement
+      let message = template
+        .replace(/{member_name}/g, member.name)
+        .replace(/{group_name}/g, group.group_name)
+        .replace(/{chit_name}/g, group.group_name)
+        .replace(/{month}/g, monthName)
+        .replace(/{due_month}/g, monthName)
+        .replace(/{installment_month}/g, monthName)
+        .replace(/{payment}/g, installmentAmountStr)
+        .replace(/{installment}/g, installmentAmountStr)
+        .replace(/{total}/g, totalDueStr)
+        .replace(/{total_due}/g, totalDueStr)
+        .replace(/{amount_due}/g, totalDueStr)
+        .replace(/{penalty}/g, penaltyAmountStr);
+
+      // URL encode the Telugu Unicode string correctly
       const formattedPhone = member.phone.replace(/\D/g, ""); // strip non-digits
-      const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(textMessage)}`;
+      const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
       window.open(url, "_blank");
+
     } catch (err: any) {
       console.error(err);
-      alert("An unexpected error occurred while sending the reminder.");
+      alert("An unexpected error occurred while compiling the reminder.");
     }
   };
 
