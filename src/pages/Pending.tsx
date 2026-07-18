@@ -34,23 +34,68 @@ export function Pending() {
   }, []);
 
   const handleSendReminder = async (payment: any) => {
-    const { data: adminSettings } = await supabase.from('admin_settings').select('whatsapp_template_te').single();
-    let template = adminSettings?.whatsapp_template_te || "Namaste {member_name}, please pay your due amount of ₹{total_due}.";
-    
-    template = template
-      .replace('{member_name}', payment.member_name)
-      .replace('{total_due}', payment.total_due.toString());
+    try {
+      if (!payment.installment_month) {
+        alert("Reminder failed: Installment month is missing.");
+        return;
+      }
 
-    if (payment.penalty_amount > 0) {
-      template = template.replace('{penalty}', `includes penalty of ₹${payment.penalty_amount}`);
-    } else {
-      template = template.replace('{penalty}', '');
-    }
+      // 1. Fetch Member Details
+      const { data: member, error: memberError } = await supabase
+        .from('members')
+        .select('name, phone')
+        .eq('id', payment.member_id)
+        .single();
 
-    // Get member phone
-    const { data: member } = await supabase.from('members').select('phone').eq('id', payment.member_id).single();
-    if (member?.phone) {
-      window.open(`https://wa.me/${member.phone}?text=${encodeURIComponent(template)}`, '_blank');
+      if (memberError || !member) {
+        alert("Reminder failed: Could not fetch member details.");
+        return;
+      }
+
+      if (!member.phone) {
+        alert(`Reminder failed: ${member.name} does not have a phone number registered.`);
+        return;
+      }
+
+      // 2. Fetch Group Details (for Monthly Installment)
+      const { data: group, error: groupError } = await supabase
+        .from('chit_groups')
+        .select('installment_amount')
+        .eq('id', payment.group_id)
+        .single();
+
+      if (groupError || !group) {
+        alert("Reminder failed: Could not fetch chit group details.");
+        return;
+      }
+
+      // 3. Format month name
+      let monthName = "";
+      try {
+        const d = new Date(payment.installment_month);
+        if (!isNaN(d.getTime())) {
+          monthName = d.toLocaleDateString("en-US", { month: "long" }); // e.g., "July"
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      if (!monthName) {
+        alert("Reminder failed: Invalid installment month value.");
+        return;
+      }
+
+      // 4. Construct Telugu message
+      const paymentAmountStr = formatCurrency(group.installment_amount);
+      const textMessage = `ముందుగా చిట్టి సభ్యులందరికీ నమస్కారములు\n\nఈ ${monthName} చిట్టి పేమెంటు ${paymentAmountStr}\n\nసకాలంలో చిట్టి డబ్బులు చెల్లించండి🙏`;
+
+      // 5. Open WhatsApp
+      const formattedPhone = member.phone.replace(/\D/g, ""); // strip non-digits
+      const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(textMessage)}`;
+      window.open(url, "_blank");
+    } catch (err: any) {
+      console.error(err);
+      alert("An unexpected error occurred while sending the reminder.");
     }
   };
 
