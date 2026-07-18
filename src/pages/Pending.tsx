@@ -75,7 +75,7 @@ export function Pending() {
       // Step 3: Retrieve group details to get the monthly installment amount
       const { data: group, error: groupError } = await supabase
         .from('chit_groups')
-        .select('installment_amount, group_name')
+        .select('installment_amount, name')
         .eq('id', payment.group_id)
         .single();
 
@@ -118,8 +118,8 @@ export function Pending() {
       // Perform dynamic placeholder replacement
       let message = template
         .replace(/{member_name}/g, member.name)
-        .replace(/{group_name}/g, group.group_name)
-        .replace(/{chit_name}/g, group.group_name)
+        .replace(/{group_name}/g, group.name)
+        .replace(/{chit_name}/g, group.name)
         .replace(/{month}/g, monthName)
         .replace(/{due_month}/g, monthName)
         .replace(/{installment_month}/g, monthName)

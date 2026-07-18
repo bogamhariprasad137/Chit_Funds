@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import autoTable, { FontStyle } from "jspdf-autotable";
 import { supabase } from "@/lib/supabase";
 import { setupPdfFonts, formatCurrencyForPdf } from "@/lib/pdfFont";
 
@@ -61,21 +61,21 @@ export async function generateReceiptPDF(payment: any) {
   // Metadata Grid (Clean, borderless two-column autoTable layout)
   const metaData = [
     [
-      { content: "Receipt Number:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: "Receipt Number:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
       { content: payment.receipt_number || "—" },
-      { content: "Member Name:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: "Member Name:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
       { content: payment.member_name || "—" }
     ],
     [
-      { content: "Date:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: "Date:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
       { content: formattedDate },
-      { content: "Phone Number:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: "Phone Number:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
       { content: payment.member_phone || payment.phone || "—" }
     ],
     [
-      { content: "Chit Group:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: "Chit Group:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
       { content: payment.group_name || "—" },
-      { content: "Payment Mode:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: "Payment Mode:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
       { content: (payment.payment_mode || "—").replace("_", " ").toUpperCase() }
     ]
   ];
