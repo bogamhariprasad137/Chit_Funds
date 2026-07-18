@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf";
-import autoTable, { FontStyle } from "jspdf-autotable";
+import autoTable from "jspdf-autotable";
+import type { FontStyle } from "jspdf-autotable";
 import { supabase } from "@/lib/supabase";
 import { setupPdfFonts, formatCurrencyForPdf } from "@/lib/pdfFont";
 
@@ -59,23 +60,25 @@ export async function generateReceiptPDF(payment: any) {
   }
 
   // Metadata Grid (Clean, borderless two-column autoTable layout)
+  const navyColor = [30, 41, 59] as [number, number, number];
+  
   const metaData = [
     [
-      { content: "Receipt Number:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
+      { content: "Receipt Number:", styles: { fontStyle: "bold" as FontStyle, textColor: navyColor } },
       { content: payment.receipt_number || "—" },
-      { content: "Member Name:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
+      { content: "Member Name:", styles: { fontStyle: "bold" as FontStyle, textColor: navyColor } },
       { content: payment.member_name || "—" }
     ],
     [
-      { content: "Date:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
+      { content: "Date:", styles: { fontStyle: "bold" as FontStyle, textColor: navyColor } },
       { content: formattedDate },
-      { content: "Phone Number:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
+      { content: "Phone Number:", styles: { fontStyle: "bold" as FontStyle, textColor: navyColor } },
       { content: payment.member_phone || payment.phone || "—" }
     ],
     [
-      { content: "Chit Group:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
+      { content: "Chit Group:", styles: { fontStyle: "bold" as FontStyle, textColor: navyColor } },
       { content: payment.group_name || "—" },
-      { content: "Payment Mode:", styles: { fontStyle: "bold" as FontStyle, textColor: [30, 41, 59] } },
+      { content: "Payment Mode:", styles: { fontStyle: "bold" as FontStyle, textColor: navyColor } },
       { content: (payment.payment_mode || "—").replace("_", " ").toUpperCase() }
     ]
   ];
@@ -89,7 +92,7 @@ export async function generateReceiptPDF(payment: any) {
       font: fontName,
       fontSize: 8,
       cellPadding: 1.5,
-      textColor: [71, 85, 105],
+      textColor: [71, 85, 105] as [number, number, number],
       valign: "middle"
     },
     columnStyles: {
@@ -125,21 +128,21 @@ export async function generateReceiptPDF(payment: any) {
       fontSize: 8,
       cellPadding: 3,
       valign: "middle",
-      lineColor: [226, 232, 240],
+      lineColor: [226, 232, 240] as [number, number, number],
       lineWidth: 0.1
     },
     headStyles: {
-      fillColor: [30, 41, 59], // Corporate Navy/Slate (#1E293B)
-      textColor: [255, 255, 255],
+      fillColor: [30, 41, 59] as [number, number, number], // Corporate Navy/Slate (#1E293B)
+      textColor: [255, 255, 255] as [number, number, number],
       fontStyle: "bold",
       fontSize: 8.5
     },
     alternateRowStyles: {
-      fillColor: [248, 250, 252]
+      fillColor: [248, 250, 252] as [number, number, number]
     },
     footStyles: {
-      fillColor: [241, 245, 249],
-      textColor: [15, 23, 42],
+      fillColor: [241, 245, 249] as [number, number, number],
+      textColor: [15, 23, 42] as [number, number, number],
       fontStyle: "bold",
       fontSize: 8.5,
       halign: "right"
