@@ -1,4 +1,5 @@
 import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import { supabase } from "@/lib/supabase";
 import { setupPdfFonts, formatCurrencyForPdf } from "@/lib/pdfFont";
 
@@ -22,167 +23,157 @@ export async function generateReceiptPDF(payment: any) {
   const fontName = hasCustomFont ? "Roboto" : "helvetica";
   doc.setFont(fontName, "normal");
 
-  // Color Palette - Neutral slate and dark plum suited for black & white printing
-  const primaryColor = "#371931"; // PLUM (#371931)
-  const textColor = "#1e293b";
-  const mutedTextColor = "#475569";
-  const dividerColor = "#cbd5e1";
-
-  // Border & Padding
-  const margin = 10;
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
 
-  // Title / Branded Header
+  // Header Banner
   doc.setFont(fontName, "bold");
-  doc.setFontSize(13);
-  doc.setTextColor(primaryColor);
-  doc.text(businessName.toUpperCase(), margin + 5, margin + 12);
-
-  doc.setFont(fontName, "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(mutedTextColor);
-  doc.text("Official Payment Receipt", margin + 5, margin + 17);
-
-  // Receipt meta (Top right)
-  doc.setFont(fontName, "bold");
-  doc.setFontSize(8.5);
-  doc.setTextColor(textColor);
-  const receiptStr = `Receipt No: ${payment.receipt_number}`;
-  const receiptWidth = doc.getTextWidth(receiptStr);
-  doc.text(receiptStr, pageWidth - margin - 5 - receiptWidth, margin + 12);
+  doc.setFontSize(11);
+  doc.setTextColor(30, 41, 59); // Corporate Navy (#1E293B)
+  const headerText = "CHITLEDGER FINANCIAL SUITE";
+  const headerWidth = doc.getTextWidth(headerText);
+  doc.text(headerText, (pageWidth - headerWidth) / 2, 14);
 
   doc.setFont(fontName, "normal");
   doc.setFontSize(8);
-  doc.setTextColor(mutedTextColor);
+  doc.setTextColor(100, 116, 139); // Slate Muted
+  const subText = `OFFICIAL TRANSACTION RECEIPT - ${businessName.toUpperCase()}`;
+  const subWidth = doc.getTextWidth(subText);
+  doc.text(subText, (pageWidth - subWidth) / 2, 19);
+
+  // Horizontal dividing rule
+  doc.setDrawColor(203, 213, 225); // slate-300
+  doc.setLineWidth(0.3);
+  doc.line(15, 23, pageWidth - 15, 23);
+
+  // Format Date
   const payDate = payment.payment_date || payment.paid_at;
-  
-  let dateText = "Date: —";
+  let formattedDate = "—";
   try {
     const d = new Date(payDate);
     if (!isNaN(d.getTime())) {
-      dateText = `Date: ${d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}`;
+      formattedDate = d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
     }
   } catch (err) {
     console.error("Error parsing date:", err);
   }
-  const dateWidth = doc.getTextWidth(dateText);
-  doc.text(dateText, pageWidth - margin - 5 - dateWidth, margin + 17);
 
-  // Thin separator line
-  doc.setDrawColor(dividerColor);
-  doc.setLineWidth(0.2);
-  doc.line(margin + 5, margin + 22, pageWidth - margin - 5, margin + 22);
-
-  // Transaction Info Header
-  doc.setFont(fontName, "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(primaryColor);
-  doc.text("TRANSACTION DETAILS", margin + 5, margin + 29);
-
-  const startY = margin + 35;
-  const labelX = margin + 5;
-  const valueX = margin + 45;
-  let currentY = startY;
-
-  const details = [
-    { label: "Member Name:", value: payment.member_name || "N/A" },
-    { label: "Phone Number:", value: payment.member_phone || payment.phone || "N/A" },
-    { label: "Chit Group:", value: payment.group_name || "N/A" },
-    { label: "Payment Mode:", value: (payment.payment_mode || "N/A").replace("_", " ").toUpperCase() },
+  // Metadata Grid (Clean, borderless two-column autoTable layout)
+  const metaData = [
+    [
+      { content: "Receipt Number:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: payment.receipt_number || "—" },
+      { content: "Member Name:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: payment.member_name || "—" }
+    ],
+    [
+      { content: "Date:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: formattedDate },
+      { content: "Phone Number:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: payment.member_phone || payment.phone || "—" }
+    ],
+    [
+      { content: "Chit Group:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: payment.group_name || "—" },
+      { content: "Payment Mode:", styles: { fontStyle: "bold", textColor: [30, 41, 59] } },
+      { content: (payment.payment_mode || "—").replace("_", " ").toUpperCase() }
+    ]
   ];
 
-  doc.setFontSize(8);
-  details.forEach((d) => {
-    doc.setFont(fontName, "bold");
-    doc.setTextColor(textColor);
-    doc.text(d.label, labelX, currentY);
-
-    doc.setFont(fontName, "normal");
-    doc.setTextColor(mutedTextColor);
-    doc.text(d.value, valueX, currentY);
-    currentY += 5.5;
+  autoTable(doc, {
+    startY: 28,
+    margin: { left: 15, right: 15 },
+    body: metaData,
+    theme: "plain",
+    styles: {
+      font: fontName,
+      fontSize: 8,
+      cellPadding: 1.5,
+      textColor: [71, 85, 105],
+      valign: "middle"
+    },
+    columnStyles: {
+      0: { cellWidth: 25 },
+      1: { cellWidth: 34 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 34 }
+    }
   });
 
-  // Divider above table
-  doc.line(margin + 5, currentY + 1, pageWidth - margin - 5, currentY + 1);
-  currentY += 7;
+  const nextY = (doc as any).lastAutoTable.finalY + 6;
 
-  // Financial Ledger Table Header
-  doc.setFont(fontName, "bold");
-  doc.setFontSize(8.5);
-  doc.setTextColor(primaryColor);
-  doc.text("Item Description", labelX, currentY);
+  // Financial Table
+  const financialHeaders = ["Item Description", "Amount (₹)"];
+  const financialRows = [
+    ["Chit Group Installment Contribution", formatCurrencyForPdf(Number(payment.installment_amount) || 0, hasCustomFont)],
+    ["Accrued Late Overdue Penalty Fee", formatCurrencyForPdf(Number(payment.penalty_amount) || 0, hasCustomFont)]
+  ];
   
-  const amountHeader = "Amount";
-  const amountHeaderWidth = doc.getTextWidth(amountHeader);
-  doc.text(amountHeader, pageWidth - margin - 5 - amountHeaderWidth, currentY);
+  const totalAmountStr = formatCurrencyForPdf(Number(payment.total_paid || payment.amount || 0), hasCustomFont);
 
-  currentY += 2;
-  doc.setLineWidth(0.25);
-  doc.setDrawColor(textColor);
-  doc.line(margin + 5, currentY, pageWidth - margin - 5, currentY);
-  currentY += 6;
-
-  // Items
-  const items = [
-    { label: "Chit Group Installment Contribution", value: Number(payment.installment_amount) || 0 },
-    { label: "Accrued Late Overdue Penalty Fee", value: Number(payment.penalty_amount) || 0 },
-  ];
-
-  doc.setFontSize(8);
-  items.forEach((item) => {
-    doc.setFont(fontName, "normal");
-    doc.setTextColor(textColor);
-    doc.text(item.label, labelX, currentY);
-
-    const valStr = formatCurrencyForPdf(item.value, hasCustomFont);
-    const valWidth = doc.getTextWidth(valStr);
-    doc.text(valStr, pageWidth - margin - 5 - valWidth, currentY);
-    currentY += 6;
+  autoTable(doc, {
+    startY: nextY,
+    margin: { left: 15, right: 15 },
+    head: [financialHeaders],
+    body: financialRows,
+    foot: [
+      ["TOTAL AMOUNT RECEIVED", totalAmountStr]
+    ],
+    theme: "striped",
+    styles: {
+      font: fontName,
+      fontSize: 8,
+      cellPadding: 3,
+      valign: "middle",
+      lineColor: [226, 232, 240],
+      lineWidth: 0.1
+    },
+    headStyles: {
+      fillColor: [30, 41, 59], // Corporate Navy/Slate (#1E293B)
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+      fontSize: 8.5
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252]
+    },
+    footStyles: {
+      fillColor: [241, 245, 249],
+      textColor: [15, 23, 42],
+      fontStyle: "bold",
+      fontSize: 8.5,
+      halign: "right"
+    },
+    columnStyles: {
+      0: { cellWidth: 83 },
+      1: { cellWidth: 35, halign: "right" }
+    }
   });
 
-  // Divider above Total
-  doc.setDrawColor(dividerColor);
-  doc.setLineWidth(0.2);
-  doc.line(margin + 5, currentY - 1, pageWidth - margin - 5, currentY - 1);
-  currentY += 4;
-
-  // Total Paid Row
-  doc.setFont(fontName, "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(primaryColor);
-  doc.text("TOTAL AMOUNT RECEIVED", labelX, currentY);
-
-  const totalValStr = formatCurrencyForPdf(Number(payment.total_paid || payment.amount || 0), hasCustomFont);
-  const totalValWidth = doc.getTextWidth(totalValStr);
-  doc.text(totalValStr, pageWidth - margin - 5 - totalValWidth, currentY);
-
-  currentY += 7;
+  let footerY = (doc as any).lastAutoTable.finalY + 6;
 
   // Remarks if any
   if (payment.remarks) {
     doc.setFont(fontName, "italic");
     doc.setFontSize(7.5);
-    doc.setTextColor(mutedTextColor);
-    doc.text(`Remarks: ${payment.remarks}`, labelX, currentY);
-    currentY += 5.5;
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Remarks: ${payment.remarks}`, 15, footerY);
+    footerY += 6;
   }
 
   // Footer Message
-  doc.setFont(fontName, "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(primaryColor);
-  const thankYou = "Thank you for your payment!";
-  const thankYouWidth = doc.getTextWidth(thankYou);
-  doc.text(thankYou, (pageWidth - thankYouWidth) / 2, pageHeight - margin - 11);
-
   doc.setFont(fontName, "normal");
-  doc.setFontSize(7);
-  doc.setTextColor(mutedTextColor);
-  const autoGenerated = "This is a computer-generated receipt and requires no physical signature.";
-  const autoGeneratedWidth = doc.getTextWidth(autoGenerated);
-  doc.text(autoGenerated, (pageWidth - autoGeneratedWidth) / 2, pageHeight - margin - 6);
+  doc.setFontSize(7.5);
+  doc.setTextColor(148, 163, 184); // slate-400
+  
+  const line1 = "Thank you for your payment!";
+  const line2 = "This is a computer-generated receipt and requires no physical signature.";
+  
+  const line1Width = doc.getTextWidth(line1);
+  const line2Width = doc.getTextWidth(line2);
+  
+  doc.text(line1, (pageWidth - line1Width) / 2, pageHeight - 16);
+  doc.text(line2, (pageWidth - line2Width) / 2, pageHeight - 11);
 
   // Trigger browser download
   doc.save(`Receipt_${payment.receipt_number}.pdf`);
