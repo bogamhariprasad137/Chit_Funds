@@ -1,54 +1,35 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, X, User, Phone, MapPin, Landmark } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { Database } from "@/types/supabase";
+import { formatCurrency } from "@/lib/formatCurrency";
 
-type ChitGroup = Database["public"]["Tables"]["chit_groups"]["Row"];
-
-const formSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  phone: z.string().min(10, "Phone must be at least 10 characters"),
-  address: z.string().optional(),
-  group_id: z.string().min(1, "Please select a group"),
-});
+interface AddMemberModalProps {
+  isOpen?: boolean;
+  open?: boolean;
+  onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
+  onMemberAdded?: () => void;
+  onSuccess?: () => void;
+}
 
 export function AddMemberModal({
+  isOpen,
   open,
+  onClose,
   onOpenChange,
+  onMemberAdded,
   onSuccess,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
-}) {
+}: AddMemberModalProps) {
+  const visible = open !== undefined ? open : (isOpen || false);
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [groupId, setGroupId] = useState("");
+  
+  const [groups, setGroups] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [groups, setGroups] = useState<ChitGroup[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchGroups() {
@@ -61,138 +42,209 @@ export function AddMemberModal({
         setGroups(data);
       }
     }
-    if (open) {
+    if (visible) {
       fetchGroups();
+      setName("");
+      setPhone("");
+      setAddress("");
+      setGroupId("");
+      setError(null);
     }
-  }, [open]);
+  }, [visible]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      phone: "",
-      address: "",
-      group_id: "",
-    },
-  });
+  if (!visible) return null;
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const handleClose = () => {
+    if (onOpenChange) onOpenChange(false);
+    if (onClose) onClose();
+  };
+
+  const triggerSuccess = () => {
+    if (onSuccess) onSuccess();
+    if (onMemberAdded) onMemberAdded();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
+
     try {
-      const { error } = await supabase.from("members").insert({
-        name: values.name,
-        phone: values.phone,
-        address: values.address || null,
-        group_id: values.group_id,
+      if (!name || name.trim().length < 3) {
+        throw new Error("Name must be at least 3 characters long.");
+      }
+      
+      let formattedPhone = phone.trim().replace(/[\s\-()]/g, "");
+      if (!formattedPhone.startsWith("+")) {
+        if (formattedPhone.startsWith("91") && formattedPhone.length === 12) {
+          formattedPhone = "+" + formattedPhone;
+        } else if (formattedPhone.length === 10) {
+          formattedPhone = "+91" + formattedPhone;
+        } else {
+          throw new Error("Invalid phone number length. Provide a 10-digit number or prefix with +91.");
+        }
+      }
+
+      if (!/^\+91[6-9][0-9]{9}$/.test(formattedPhone)) {
+        throw new Error("Phone number must be a valid Indian mobile number starting with +91 (e.g. +91 98765 43210).");
+      }
+
+      if (!groupId) {
+        throw new Error("Please select a chit group pool.");
+      }
+
+      const { error: insertError } = await supabase.from("members").insert({
+        name: name.trim(),
+        phone: formattedPhone,
+        address: address.trim() || null,
+        group_id: groupId,
       });
 
-      if (error) throw error;
-      
-      form.reset();
-      onSuccess();
-      onOpenChange(false);
-    } catch (error) {
-      console.error("Error adding member:", error);
-      alert("Failed to add member.");
+      if (insertError) {
+        if (insertError.message.includes("members_group_phone_unique")) {
+          throw new Error("A member with this phone number is already registered in this group.");
+        }
+        throw insertError;
+      }
+
+      triggerSuccess();
+      handleClose();
+    } catch (err: any) {
+      console.error("Error adding member:", err);
+      setError(err.message || "Failed to add member to database.");
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] p-6 bg-white rounded-2xl gap-6">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-slate-900 display-font">
-            Add New Member
-          </DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+      {/* Glass backdrop */}
+      <div className="absolute inset-0 bg-plum/40 backdrop-blur-sm" onClick={handleClose} />
+      
+      {/* Modal Card */}
+      <div className="bg-milk w-full max-w-[460px] rounded-lg shadow-plum-lg animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-250 relative z-10 overflow-hidden border border-plum/20 text-plum font-body-md">
+        
+        {/* Header */}
+        <div className="px-6 py-5 bg-plum text-milk border-b border-milk/10 flex justify-between items-center">
+          <div>
+            <h3 className="text-base font-extrabold text-milk">Enroll New Member</h3>
+            <p className="text-[10px] text-milk/60 mt-0.5 font-bold font-geist">Insert a new record into your global database.</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="p-1.5 hover:bg-milk/10 rounded-lg text-milk/80 hover:text-milk transition-all duration-200 active:scale-90 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
-        <Form {...(form as any)}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control as any}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-900 font-semibold">Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Rajesh Kumar" className="border-slate-300 focus-visible:ring-slate-900" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control as any}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-900 font-semibold">Phone Number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. +91 9876543210" className="border-slate-300 focus-visible:ring-slate-900" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control as any}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-900 font-semibold">Address (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. 123 Main St" className="border-slate-300 focus-visible:ring-slate-900" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control as any}
-              name="group_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-900 font-semibold">Assign to Group</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="border-slate-300 focus-visible:ring-slate-900">
-                        <SelectValue placeholder="Select a chit group" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {groups.map((g) => (
-                        <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-3 pt-4 mt-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => onOpenChange(false)}
-                className="border-slate-300 text-slate-900 font-semibold"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Add Member
-              </Button>
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          
+          {error && (
+            <div className="bg-plum text-milk text-xs font-bold p-4 rounded-lg border border-milk/10 shadow-milk-sm animate-in fade-in duration-200">
+              {error}
             </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          )}
+
+          {/* Full Name */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Full Name</label>
+            <div className="relative group">
+              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 group-focus-within:text-plum transition-colors duration-200" />
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Rajesh Kumar"
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk placeholder:text-plum/45"
+              />
+            </div>
+          </div>
+
+          {/* Phone Number */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Phone Number</label>
+            <div className="relative group">
+              <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 group-focus-within:text-plum transition-colors duration-200" />
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="e.g. +91 9876543210"
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk font-mono placeholder:text-plum/45"
+              />
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Address (Optional)</label>
+            <div className="relative group">
+              <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 group-focus-within:text-plum transition-colors duration-200" />
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="e.g. Hyderabad, TS"
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk placeholder:text-plum/45"
+              />
+            </div>
+          </div>
+
+          {/* Chit Group Selection */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Assign Chit Group</label>
+            <div className="relative group">
+              <Landmark className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 pointer-events-none" />
+              <select
+                required
+                value={groupId}
+                onChange={(e) => setGroupId(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk shadow-plum-sm appearance-none cursor-pointer"
+              >
+                <option value="">Select an active chit pool</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name} (Value: {formatCurrency(g.chit_amount)})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-plum/10">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              className="px-4 py-2 btn-milk"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-2 btn-plum flex items-center gap-1.5 disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  Creating Record...
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                </>
+              ) : (
+                "Enroll Member"
+              )}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
   );
 }

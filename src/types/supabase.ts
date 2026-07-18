@@ -432,6 +432,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_installments_view: {
+        Row: {
+          member_id: string
+          group_id: string
+          member_name: string
+          group_name: string
+          installment_month: string
+          penalty_amount: number
+          total_due: number
+        }
+        Insert: {
+          member_id?: string
+          group_id?: string
+          member_name?: string
+          group_name?: string
+          installment_month?: string
+          penalty_amount?: number
+          total_due?: number
+        }
+        Update: {
+          member_id?: string
+          group_id?: string
+          member_name?: string
+          group_name?: string
+          installment_month?: string
+          penalty_amount?: number
+          total_due?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_group_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chit_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_member_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Functions: {
       delete_payment: {

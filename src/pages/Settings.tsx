@@ -1,147 +1,162 @@
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Globe, MessageCircle, Save, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-
-const SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
+import { Loader2, Settings as SettingsIcon, MessageSquare, Landmark, CheckCircle, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function Settings() {
-  const { i18n } = useTranslation();
+  const [settings, setSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [templateEn, setTemplateEn] = useState("");
-  const [templateTe, setTemplateTe] = useState("");
+  const [message, setMessage] = useState({ text: "", type: "" });
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function loadSettings() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('admin_settings')
-        .select('whatsapp_template_en, whatsapp_template_te')
-        .eq('id', SETTINGS_ID)
-        .single();
-        
+      const { data } = await supabase.from('admin_settings').select('*').single();
       if (data) {
-        setTemplateEn(data.whatsapp_template_en || "");
-        setTemplateTe(data.whatsapp_template_te || "");
-      } else if (error) {
-        console.error("Failed to load settings:", error);
+        setSettings(data);
       }
       setLoading(false);
     }
     loadSettings();
   }, []);
 
-  const handleSave = async () => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!settings) return;
+    
     setSaving(true);
+    setMessage({ text: "", type: "" });
+    
     const { error } = await supabase
       .from('admin_settings')
       .update({
-        whatsapp_template_en: templateEn,
-        whatsapp_template_te: templateTe
+        business_name: settings.business_name,
+        whatsapp_template_en: settings.whatsapp_template_en,
+        whatsapp_template_te: settings.whatsapp_template_te
       })
-      .eq('id', SETTINGS_ID);
+      .eq('id', settings.id);
 
     if (error) {
-      alert("Failed to save settings: " + error.message);
+      setMessage({ text: "Failed to save settings parameters. Please try again.", type: "error" });
     } else {
-      alert("Settings saved successfully.");
+      setMessage({ text: "Global settings parameters saved successfully.", type: "success" });
     }
     setSaving(false);
   };
 
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center bg-milk text-plum">
+        <Loader2 className="w-8 h-8 animate-spin text-plum" />
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-12 bg-milk text-plum font-body-md">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 display-font tracking-tight">
-            Settings
-          </h1>
-          <p className="text-slate-500 font-medium mt-1">Manage application preferences and WhatsApp integration.</p>
+          <h1 className="text-3xl font-extrabold text-plum tracking-tight">{t("settings.title")}</h1>
+          <p className="text-sm font-medium text-plum/60 mt-1 font-outfit">{t("settings.description")}</p>
         </div>
       </div>
 
-      <div className="max-w-3xl space-y-6">
-        {/* Localization Section */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-200">
-            <div className="flex items-center gap-2 mb-1">
-              <Globe className="w-5 h-5 text-slate-700" />
-              <h2 className="text-lg font-semibold text-slate-900">Localization</h2>
-            </div>
-            <p className="text-sm text-slate-500">Select the primary language for receipts and WhatsApp templates.</p>
+      <div className="max-w-3xl">
+        <div className="card-milk overflow-hidden hover:-translate-y-0.5">
+          <div className="px-6 py-4 bg-plum text-milk border-b border-plum/20 flex items-center gap-2">
+            <SettingsIcon className="w-4 h-4" />
+            <h3 className="text-sm font-bold">{t("settings.card_title")}</h3>
           </div>
-          <div className="p-6 bg-slate-50">
-            <div className="max-w-sm">
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Primary Language
-              </label>
-              <select 
-                className="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
-                value={i18n.language}
-                onChange={(e) => i18n.changeLanguage(e.target.value)}
-              >
-                <option value="en">English</option>
-                <option value="te">Telugu</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* WhatsApp Integration Section */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-200">
-            <div className="flex items-center gap-2 mb-1">
-              <MessageCircle className="w-5 h-5 text-slate-700" />
-              <h2 className="text-lg font-semibold text-slate-900">WhatsApp Templates</h2>
-            </div>
-            <p className="text-sm text-slate-500">Configure the deep link message templates. Available tokens: <code className="bg-slate-200 px-1 py-0.5 rounded text-xs">{'{member_name}'}</code> <code className="bg-slate-200 px-1 py-0.5 rounded text-xs">{'{chit_name}'}</code> <code className="bg-slate-200 px-1 py-0.5 rounded text-xs">{'{month}'}</code> <code className="bg-slate-200 px-1 py-0.5 rounded text-xs">{'{installment}'}</code> <code className="bg-slate-200 px-1 py-0.5 rounded text-xs">{'{penalty}'}</code> <code className="bg-slate-200 px-1 py-0.5 rounded text-xs">{'{total}'}</code></p>
-          </div>
-          <div className="p-6 bg-slate-50 space-y-6">
+          
+          <form onSubmit={handleSave} className="p-6 md:p-8 space-y-6">
             
-            {loading ? (
-              <div className="flex justify-center p-6"><Loader2 className="animate-spin text-slate-400 w-8 h-8" /></div>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-700">
-                    English Template
-                  </label>
-                  <textarea 
-                    value={templateEn}
-                    onChange={e => setTemplateEn(e.target.value)}
-                    rows={4}
-                    className="w-full p-3 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all font-mono"
-                    placeholder="Hello {member_name}, your chit installment..."
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-700">
-                    Telugu Template
-                  </label>
-                  <textarea 
-                    value={templateTe}
-                    onChange={e => setTemplateTe(e.target.value)}
-                    rows={4}
-                    className="w-full p-3 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all font-mono"
-                    placeholder="నమస్తే {member_name}, మీ చిట్ వాయిదా..."
-                  />
-                </div>
-              </>
+            {/* Status Feedback Banners */}
+            {message.text && (
+              <div className="p-4 rounded-lg flex items-start gap-3 border bg-plum text-milk border-milk/10 animate-in fade-in duration-200 shadow-milk-sm">
+                {message.type === 'error' ? (
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                ) : (
+                  <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                )}
+                <p className="text-xs font-bold leading-normal">{message.text}</p>
+              </div>
             )}
 
-          </div>
-        </div>
+            {/* Business Naming Parameter */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <Landmark className="w-3.5 h-3.5 opacity-60" />
+                <label className="text-xs font-bold uppercase tracking-wider block">{t("settings.business_label")}</label>
+              </div>
+              <input 
+                type="text" 
+                value={settings?.business_name || ""}
+                onChange={(e) => setSettings({...settings, business_name: e.target.value})}
+                required
+                className="w-full px-3.5 py-2.5 input-milk shadow-plum-sm"
+              />
+              <p className="text-[10px] opacity-75 mt-1 font-bold select-none">{t("settings.business_desc")}</p>
+            </div>
 
-        {/* Footer Actions */}
-        <div className="flex justify-end pt-4">
-          <Button onClick={handleSave} disabled={saving || loading} className="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-6">
-            {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-            Save Settings
-          </Button>
+            {/* WhatsApp Template Parameter (English) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 opacity-60" />
+                <label className="text-xs font-bold uppercase tracking-wider block">{t("settings.english_template")}</label>
+              </div>
+              <textarea 
+                value={settings?.whatsapp_template_en || ""}
+                onChange={(e) => setSettings({...settings, whatsapp_template_en: e.target.value})}
+                required
+                rows={3}
+                className="w-full px-3.5 py-2.5 input-milk shadow-plum-sm resize-none text-xs"
+              />
+            </div>
+
+            {/* WhatsApp Template Parameter (Telugu) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 opacity-60" />
+                <label className="text-xs font-bold uppercase tracking-wider block">{t("settings.telugu_template")}</label>
+              </div>
+              <textarea 
+                value={settings?.whatsapp_template_te || ""}
+                onChange={(e) => setSettings({...settings, whatsapp_template_te: e.target.value})}
+                required
+                rows={3}
+                className="w-full px-3.5 py-2.5 input-milk shadow-plum-sm resize-none text-xs"
+              />
+              
+              {/* Variable placeholders legend */}
+              <div className="bg-plum/5 border border-plum/20 p-4 rounded-lg space-y-2 mt-2 hover:shadow-plum-sm transition-all duration-200 ease-in-out">
+                <p className="text-[10px] font-bold uppercase tracking-wider select-none">{t("settings.legend_title")}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] leading-normal font-bold">
+                  <div className="flex items-center">
+                    <code className="bg-plum text-milk px-1.5 py-0.5 rounded font-mono font-bold mr-1.5 select-all">{"{member_name}"}</code>
+                    Recipient Name
+                  </div>
+                  <div className="flex items-center">
+                    <code className="bg-plum text-milk px-1.5 py-0.5 rounded font-mono font-bold mr-1.5 select-all">{"{total_due}"}</code>
+                    Outstanding Amount
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Action with Hover Inversion */}
+            <div className="flex items-center justify-end pt-4 border-t border-plum/10">
+              <button
+                type="submit"
+                disabled={saving}
+                className="btn-plum px-5 py-3 shadow-plum-sm disabled:opacity-50"
+              >
+                {saving ? t("settings.saving_btn") : t("settings.save_btn")}
+              </button>
+            </div>
+
+          </form>
         </div>
       </div>
     </div>

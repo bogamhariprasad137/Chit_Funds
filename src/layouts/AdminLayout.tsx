@@ -1,50 +1,29 @@
-import { useState } from "react";
-import { Navigate, Outlet } from "react-router";
-import { Header } from "@/components/shared/Header";
+import { Outlet, Navigate, useLocation } from "react-router";
 import { Sidebar } from "@/components/shared/Sidebar";
-import { FloatingActionButton } from "@/components/shared/FloatingActionButton";
-import { RecordPaymentModal } from "@/components/shared/RecordPaymentModal";
+import { Header } from "@/components/shared/Header";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
 
 export function AdminLayout() {
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const { user, isLoading } = useAuth();
+  const { session, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-      </div>
-    );
+    return <div className="h-screen w-screen flex items-center justify-center bg-background">Loading...</div>;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (!session) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      <Header onOpenPaymentModal={() => setIsPaymentModalOpen(true)} />
-      
-      {/* Desktop Navigation */}
+    <div className="font-body-md text-on-surface flex min-h-screen bg-background">
       <Sidebar />
-      
-      {/* Mobile Record Payment Action */}
-      <FloatingActionButton onClick={() => setIsPaymentModalOpen(true)} />
+      <Header />
 
-      {/* Main Content Area */}
-      <main className="flex-1 w-full pt-20 pb-6 md:pl-[260px] px-4 md:px-10 min-h-screen">
-        <div className="max-w-[1440px] mx-auto w-full">
-          <Outlet />
-        </div>
+      {/* Main Canvas */}
+      <main className="ml-0 md:ml-[280px] mt-16 p-6 md:p-10 w-full max-w-[1440px] mx-auto transition-all animate-in fade-in duration-500">
+        <Outlet />
       </main>
-
-      {/* Global Modals */}
-      <RecordPaymentModal 
-        open={isPaymentModalOpen} 
-        onOpenChange={setIsPaymentModalOpen} 
-      />
     </div>
   );
 }

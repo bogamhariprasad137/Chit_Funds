@@ -1,187 +1,180 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { formatCurrency } from "@/lib/formatCurrency";
-import { Button } from "@/components/ui/button";
-import { Plus, Archive } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import type { Database } from "@/types/supabase";
 import { CreateGroupModal } from "@/components/shared/CreateGroupModal";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/formatCurrency";
+import { Loader2, Plus, ArrowRight, Landmark, Clock } from "lucide-react";
+import { useNavigate } from "react-router";
 
-type ChitGroup = Database["public"]["Tables"]["chit_groups"]["Row"];
+type GroupStatus = 'active' | 'archived';
 
 export function Groups() {
-  const navigate = useNavigate();
-  const [groups, setGroups] = useState<ChitGroup[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<GroupStatus>('active');
+  const [groups, setGroups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchGroups = async () => {
-    setIsLoading(true);
+    setLoading(true);
     const { data, error } = await supabase
-      .from("chit_groups")
-      .select("*")
-      .order("created_at", { ascending: false });
+      .from('chit_groups')
+      .select('*')
+      .eq('status', activeTab)
+      .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error("Error fetching groups:", error);
-    } else {
-      setGroups(data || []);
+    if (!error && data) {
+      setGroups(data);
     }
-    setIsLoading(false);
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchGroups();
-  }, []);
-
-  const activeGroups = groups.filter(g => g.status === 'active');
-  const archivedGroups = groups.filter(g => g.status === 'archived');
+  }, [activeTab]);
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-12 bg-milk text-plum">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 display-font tracking-tight">
-            Chit Groups
-          </h1>
-          <p className="text-slate-500 font-medium mt-1">Manage your active and archived chit funds.</p>
+          <h1 className="text-3xl font-extrabold text-plum tracking-tight">Chit Groups</h1>
+          <p className="text-sm font-medium text-plum/60 mt-1 font-outfit">Manage and audit active chit pool schemes.</p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)} className="bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-          <Plus className="w-4 h-4 mr-2" />
+        <button 
+          onClick={() => setIsCreateModalOpen(true)}
+          className="btn-plum px-5 py-3 flex items-center justify-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
           Create Group
-        </Button>
+        </button>
       </div>
-      
-      {/* Tabs & Table */}
-      <Tabs defaultValue="active" className="w-full">
-        <TabsList className="grid w-full max-w-[400px] grid-cols-2 mb-6">
-          <TabsTrigger value="active">Active Groups ({activeGroups.length})</TabsTrigger>
-          <TabsTrigger value="archived">Archived Groups ({archivedGroups.length})</TabsTrigger>
-        </TabsList>
 
-        <TabsContent value="active" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50">
-                <TableRow>
-                  <TableHead className="font-semibold text-slate-900 min-w-[200px]">Name</TableHead>
-                  <TableHead className="font-semibold text-slate-900 text-right">Chit Amount</TableHead>
-                  <TableHead className="font-semibold text-slate-900 text-right">Duration</TableHead>
-                  <TableHead className="font-semibold text-slate-900 text-right">Members</TableHead>
-                  <TableHead className="font-semibold text-slate-900 text-right">Installment</TableHead>
-                  <TableHead className="font-semibold text-slate-900">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">Loading groups...</TableCell>
-                  </TableRow>
-                ) : activeGroups.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">No active groups found.</TableCell>
-                  </TableRow>
-                ) : (
-                  activeGroups.map((group) => (
-                    <TableRow 
-                      key={group.id} 
-                      className="hover:bg-slate-50 transition-colors cursor-pointer group"
-                      onClick={() => navigate(`/groups/${group.id}`)}
-                    >
-                      <TableCell className="font-semibold text-slate-900">
-                        {group.name}
-                      </TableCell>
-                      <TableCell className="text-right font-medium text-slate-900 tabular-nums">
-                        {formatCurrency(group.chit_amount)}
-                      </TableCell>
-                      <TableCell className="text-right text-slate-600">
-                        {group.duration_months} Months
-                      </TableCell>
-                      <TableCell className="text-right text-slate-600">
-                        <span className="font-medium text-slate-900">?</span> / {group.max_members}
-                      </TableCell>
-                      <TableCell className="text-right font-medium text-slate-900 tabular-nums">
-                        {formatCurrency(group.installment_amount)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="secondary" 
-                          className="font-semibold uppercase tracking-wider text-[10px] bg-blue-100 text-blue-700 hover:bg-blue-200"
-                        >
-                          {group.status}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+      {/* Segmented Control Bar */}
+      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-plum/20 pb-4">
+        <div className="flex p-1 bg-plum/5 rounded-lg border border-plum/10">
+          <button 
+            onClick={() => setActiveTab('active')}
+            className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ease-in-out active:scale-95 cursor-pointer ${
+              activeTab === 'active' 
+                ? 'bg-plum text-milk shadow-plum-sm' 
+                : 'text-plum/60 hover:text-plum hover:bg-plum/5'
+            }`}
+          >
+            Active Schemes
+          </button>
+          <button 
+            onClick={() => setActiveTab('archived')}
+            className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ease-in-out active:scale-95 cursor-pointer ${
+              activeTab === 'archived' 
+                ? 'bg-plum text-milk shadow-plum-sm' 
+                : 'text-plum/60 hover:text-plum hover:bg-plum/5'
+            }`}
+          >
+            Archived Ledger
+          </button>
+        </div>
+        
+        {/* Count Badge indicator */}
+        <span className="text-xs font-bold text-plum bg-milk border border-plum/25 px-3 py-1 rounded-lg uppercase tracking-wider select-none">
+          {groups.length} Group{groups.length !== 1 ? 's' : ''} listed
+        </span>
+      </div>
+
+      {/* Main Data Table Card wrapper with hover elevation */}
+      <div className="card-milk min-h-[300px] overflow-hidden">
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-plum" />
           </div>
-        </TabsContent>
-
-        <TabsContent value="archived" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          {archivedGroups.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-slate-50">
-                  <TableRow>
-                    <TableHead className="font-semibold text-slate-900 min-w-[200px]">Name</TableHead>
-                    <TableHead className="font-semibold text-slate-900 text-right">Chit Amount</TableHead>
-                    <TableHead className="font-semibold text-slate-900 text-right">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {archivedGroups.map((group) => (
-                    <TableRow 
-                      key={group.id} 
-                      className="hover:bg-slate-50 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/groups/${group.id}`)}
-                    >
-                      <TableCell className="font-semibold text-slate-900">
-                        {group.name}
-                      </TableCell>
-                      <TableCell className="text-right font-medium text-slate-900 tabular-nums">
-                        {formatCurrency(group.chit_amount)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="secondary" className="font-semibold uppercase tracking-wider text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200">
-                          {group.status}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+        ) : groups.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-16 text-center">
+            <div className="w-14 h-14 bg-plum/5 border border-plum/15 rounded-lg flex items-center justify-center mb-4 shadow-plum-sm">
+              <Landmark className="w-6 h-6 text-plum" />
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center p-12 space-y-3">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
-                <Archive className="text-slate-400 w-8 h-8" />
-              </div>
-              <h3 className="text-lg font-semibold text-slate-900">No archived groups</h3>
-              <p className="text-slate-500 max-w-sm text-center">
-                Groups that have completed their duration and payouts will appear here.
-              </p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+            <h3 className="text-base font-bold text-plum mb-1">No Groups Found</h3>
+            <p className="text-xs text-plum/60 max-w-sm mx-auto leading-relaxed">
+              {activeTab === 'active' 
+                ? "You haven't created any active chit groups yet. Click 'Create Group' to initialize your first scheme." 
+                : "There are no closed/archived groups in the database history."}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[800px]">
+              <thead className="bg-plum text-milk border-b border-plum/20">
+                <tr>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Group Identity</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Chit Value</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Duration</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Installment Amount</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-plum/10">
+                {groups.map((group) => (
+                  <tr 
+                    key={group.id} 
+                    className="hover:bg-plum hover:text-milk transition-all duration-200 ease-in-out cursor-pointer group active:bg-plum/95"
+                    onClick={() => navigate(`/groups/${group.id}`)}
+                  >
+                    {/* Identity */}
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-plum text-milk flex items-center justify-center shadow-plum-sm group-hover:bg-milk group-hover:text-plum transition-colors duration-200">
+                          <Landmark className="w-4.5 h-4.5" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-plum group-hover:text-milk">{group.name}</div>
+                          <div className="text-[10px] font-mono text-plum/60 group-hover:text-milk/70 mt-0.5 font-bold">ID: {group.id.split('-')[0]}</div>
+                        </div>
+                      </div>
+                    </td>
+                    {/* Value */}
+                    <td className="px-6 py-5 text-right font-mono font-black text-sm text-plum group-hover:text-milk">
+                      {formatCurrency(group.chit_amount)}
+                    </td>
+                    {/* Duration */}
+                    <td className="px-6 py-5 text-center text-xs font-bold text-plum group-hover:text-milk">
+                      <div className="inline-flex items-center gap-1.5 justify-center">
+                        <Clock className="w-3.5 h-3.5 opacity-60" />
+                        {group.duration_months} Months
+                      </div>
+                    </td>
+                    {/* Installment */}
+                    <td className="px-6 py-5 text-right font-mono font-black text-sm text-plum group-hover:text-milk">
+                      {formatCurrency(group.installment_amount)}
+                    </td>
+                    {/* Status badge */}
+                    <td className="px-6 py-5 text-center">
+                      {group.status === 'active' ? (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-bold bg-plum text-milk border border-milk/10 group-hover:bg-milk group-hover:text-plum group-hover:border-plum/10 uppercase tracking-wider transition-colors duration-200">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-bold bg-milk text-plum border border-plum/10 group-hover:bg-plum group-hover:text-milk group-hover:border-milk/10 uppercase tracking-wider transition-colors duration-200">
+                          Archived
+                        </span>
+                      )}
+                    </td>
+                    {/* Action Arrow */}
+                    <td className="px-6 py-5 text-right">
+                      <button className="p-2 bg-plum text-milk rounded-lg border border-transparent group-hover:bg-milk group-hover:text-plum group-hover:border-plum/25 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-plum-sm hover:scale-105 active:scale-90">
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <CreateGroupModal 
-        open={isCreateModalOpen} 
-        onOpenChange={setIsCreateModalOpen}
-        onSuccess={fetchGroups}
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)}
+        onGroupCreated={fetchGroups}
       />
     </div>
   );

@@ -1,240 +1,322 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useTranslation } from "react-i18next";
-import { formatCurrency } from "@/lib/formatCurrency";
-import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageCircle, Wallet, Loader2 } from "lucide-react";
-import { WhatsAppReminderModal } from "@/components/shared/WhatsAppReminderModal";
 import { supabase } from "@/lib/supabase";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-
-type MemberWithGroup = {
-  id: string;
-  name: string;
-  phone: string;
-  group_id: string;
-  chit_groups: { name: string; status: string; installment_amount: number } | null;
-};
-
-type PaymentRow = {
-  id: string;
-  receipt_number: string;
-  paid_at: string;
-  installment_month: string;
-  payment_mode: string;
-  total_paid: number;
-  voided_at: string | null;
-};
+import { formatCurrency } from "@/lib/formatCurrency";
+import { 
+  Loader2, 
+  ArrowLeft, 
+  Send, 
+  Download, 
+  Landmark, 
+  Coins, 
+  AlertCircle,
+  FileCheck,
+  Ban
+} from "lucide-react";
+import { RecordPaymentModal } from "@/components/shared/RecordPaymentModal";
+import { VoidPaymentModal } from "@/components/payments/VoidPaymentModal";
+import { generateReceiptPDF } from "@/lib/pdfGenerator";
 
 export function MemberDetail() {
-  const { id } = useParams();
-  const { t } = useTranslation();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [isReminderOpen, setIsReminderOpen] = useState(false);
-  const [member, setMember] = useState<MemberWithGroup | null>(null);
-  const [payments, setPayments] = useState<PaymentRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isPaymentsLoading, setIsPaymentsLoading] = useState(true);
+  const [member, setMember] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedPaymentForVoid, setSelectedPaymentForVoid] = useState<any>(null);
+  
+  // Stats
+  const [totalPaid, setTotalPaid] = useState(0);
+  const [totalPending, setTotalPending] = useState(0);
+  
+  // Data lists
+  const [payments, setPayments] = useState<any[]>([]);
 
-  useEffect(() => {
-    async function fetchMemberData() {
-      if (!id) return;
-      setIsLoading(true);
-      
-      const { data: memberData, error: memberError } = await supabase
-        .from("members")
-        .select(`
-          id,
-          name,
-          phone,
-          group_id,
-          chit_groups ( name, status, installment_amount )
-        `)
-        .eq("id", id)
-        .single();
+  const loadMemberData = async () => {
+    if (!id) return;
+    setLoading(true);
 
-      if (memberError) {
-        console.error("Error fetching member:", memberError);
+    const { data: memberData } = await supabase
+      .from('members')
+      .select(`*, chit_groups ( name, chit_amount, duration_months, installment_amount )`)
+      .eq('id', id)
+      .single();
+    
+    setMember(memberData);
+
+    if (memberData) {
+      // Fetch Payments for this member
+      const { data: paymentsData } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('member_id', id)
+        .order('paid_at', { ascending: false });
+
+      if (paymentsData) {
+        const mapped = paymentsData.map((p: any) => ({
+          ...p,
+          payment_date: p.paid_at,
+          amount: p.total_paid
+        }));
+        setPayments(mapped);
+        
+        const paid = mapped.filter(p => !p.voided_at).reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+        setTotalPaid(paid);
       } else {
-        // @ts-ignore
-        setMember(memberData);
+        setPayments([]);
+        setTotalPaid(0);
       }
-      setIsLoading(false);
+
+      // Fetch Pending for this member
+      const { data: pendingData } = await supabase
+        .from('pending_installments_view')
+        .select('*')
+        .eq('member_id', id);
+
+      const pending = pendingData?.reduce((sum, p) => sum + (p.total_due || 0), 0) || 0;
+      setTotalPending(pending);
     }
-    fetchMemberData();
-  }, [id]);
+
+    setLoading(false);
+  };
 
   useEffect(() => {
-    async function fetchPayments() {
-      if (!id) return;
-      setIsPaymentsLoading(true);
-      
-      const { data, error } = await supabase
-        .from("payments")
-        .select(`*`)
-        .eq("member_id", id)
-        .order("paid_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching payments:", error);
-      } else if (data) {
-        setPayments(data as any);
-      }
-      
-      setIsPaymentsLoading(false);
-    }
-    fetchPayments();
+    loadMemberData();
   }, [id]);
 
-  if (isLoading) {
-    return <div className="w-full text-center py-12 text-slate-500">Loading member details...</div>;
+  const handleWhatsAppReminder = async () => {
+    if (!member) return;
+    const { data: adminSettings } = await supabase.from('admin_settings').select('whatsapp_template_te').single();
+    let template = adminSettings?.whatsapp_template_te || "Namaste {member_name}, please pay your due amount of ₹{total_due}.";
+    
+    template = template
+      .replace('{member_name}', member.name)
+      .replace('{total_due}', totalPending.toString());
+
+    window.open(`https://wa.me/${member.phone}?text=${encodeURIComponent(template)}`, '_blank');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center bg-milk text-plum">
+        <Loader2 className="w-8 h-8 animate-spin text-plum" />
+      </div>
+    );
   }
 
   if (!member) {
-    return <div className="w-full text-center py-12 text-slate-500">Member not found.</div>;
+    return (
+      <div className="flex flex-col items-center justify-center p-16 text-center bg-milk text-plum">
+        <h3 className="text-lg font-bold text-plum mb-2">Member Not Found</h3>
+        <button onClick={() => navigate('/members')} className="text-plum font-bold hover:underline mt-4 cursor-pointer">Go Back</button>
+      </div>
+    );
   }
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-12 bg-milk text-plum font-body-md">
+      {/* Top Action Bar */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-plum/20">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="w-10 h-10 border-slate-200"
+          <button 
             onClick={() => navigate('/members')}
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-milk border border-plum/20 text-plum hover:bg-plum hover:text-milk transition-all duration-200 hover:scale-105 active:scale-95 shadow-plum-sm cursor-pointer"
+            aria-label="Go Back"
           >
-            <ArrowLeft className="w-5 h-5 text-slate-900" />
-          </Button>
+            <ArrowLeft className="w-4 h-4" />
+          </button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 display-font tracking-tight">
-              {member.name}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge className={`uppercase tracking-wider text-[10px] ${member.chit_groups?.status === 'active' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
-                {member.chit_groups?.status || 'Unknown'}
-              </Badge>
-              <span className="text-sm font-medium text-slate-500">
-                {member.phone}
+            <h2 className="text-2xl font-extrabold text-plum tracking-tight">{member.name}</h2>
+            <div className="flex items-center gap-2 text-xs text-plum/60 mt-1 font-bold select-none">
+              <span className="font-mono">{member.phone}</span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1">
+                <Landmark className="w-3.5 h-3.5 opacity-60" />
+                {member.chit_groups?.name}
               </span>
             </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
-            onClick={() => setIsReminderOpen(true)}
-            className="border-amber-400 text-amber-950 font-semibold bg-amber-50 hover:bg-amber-100 hover:text-amber-950 border"
+        {/* CTAs with hover inversion */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto font-bold text-xs">
+          {totalPending > 0 && (
+            <button 
+              onClick={handleWhatsAppReminder}
+              className="btn-milk px-4 py-2.5 flex items-center justify-center gap-2 flex-1 md:flex-none"
+            >
+              <Send className="w-3.5 h-3.5" />
+              WhatsApp Reminder
+            </button>
+          )}
+          <button 
+            onClick={() => setIsPaymentModalOpen(true)}
+            className="btn-plum px-4 py-2.5 flex-1 md:flex-none"
           >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Send Reminder
-          </Button>
-        </div>
-      </div>
-      
-      {/* KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-500">
-          <p className="text-xs font-semibold tracking-wider text-slate-500 uppercase mb-1">Group Assignment</p>
-          <p className="text-2xl font-bold text-slate-900">{member.chit_groups?.name || 'N/A'}</p>
-        </div>
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-amber-500">
-          <p className="text-xs font-semibold tracking-wider text-slate-500 uppercase mb-1">Monthly Installment</p>
-          <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatCurrency(member.chit_groups?.installment_amount || 0)}</p>
+            Record Payment
+          </button>
         </div>
       </div>
 
-      {/* Ledger Table */}
+      {/* KPI Stats Cards */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Total Paid Card */}
+        <div className="card-milk p-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+            <Coins className="w-20 h-20 text-plum" />
+          </div>
+          <p className="text-[10px] font-bold text-plum/60 uppercase tracking-widest mb-1.5 font-geist">Contribution Ledger</p>
+          <h3 className="text-2xl font-black text-plum font-mono tracking-tight">{formatCurrency(totalPaid)}</h3>
+          <div className="mt-4 flex items-center gap-1.5 text-xs text-plum/60 font-bold">
+            <FileCheck className="w-3.5 h-3.5 text-plum" />
+            <span>Successful Payments Verified</span>
+          </div>
+        </div>
+        
+        {/* Outstanding Dues Card */}
+        <div className="card-milk p-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+            <AlertCircle className="w-20 h-20 text-plum" />
+          </div>
+          <p className="text-[10px] font-bold text-plum/60 uppercase tracking-widest mb-1.5 font-geist">Outstanding Balance</p>
+          <h3 className="text-2xl font-black text-plum font-mono tracking-tight">
+            {formatCurrency(totalPending)}
+          </h3>
+          <div className="mt-4 flex items-center gap-1.5 text-xs font-bold">
+            <AlertCircle className="w-3.5 h-3.5" />
+            <span>{totalPending > 0 ? "Requires collection check" : "Installments fully paid"}</span>
+          </div>
+        </div>
+
+      </section>
+
+      {/* Payment Ledger section */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-slate-900">Payment Ledger</h2>
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-h-[200px]">
+        <h3 className="text-lg font-bold text-plum">Ledger History</h3>
+        
+        <div className="card-milk overflow-hidden hover:-translate-y-0.5">
+          <div className="px-6 py-4 bg-plum text-milk border-b border-plum/20">
+            <h4 className="text-sm font-bold">All Registered Transactions</h4>
+          </div>
+          
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50">
-                <TableRow>
-                  <TableHead className="font-semibold text-slate-900">Receipt #</TableHead>
-                  <TableHead className="font-semibold text-slate-900">Date Paid</TableHead>
-                  <TableHead className="font-semibold text-slate-900">Installment Month</TableHead>
-                  <TableHead className="font-semibold text-slate-900">Mode</TableHead>
-                  <TableHead className="font-semibold text-slate-900 text-right">Amount</TableHead>
-                  <TableHead className="font-semibold text-slate-900 text-center">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isPaymentsLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-slate-400" />
-                    </TableCell>
-                  </TableRow>
-                ) : payments.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center text-slate-500">
-                      No payments found for this member.
-                    </TableCell>
-                  </TableRow>
+            <table className="w-full text-left border-collapse min-w-[800px]">
+              <thead className="bg-plum text-milk border-b border-plum/20">
+                <tr>
+                  <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider">Date Recorded</th>
+                  <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider">Receipt Number</th>
+                  <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider">Payment Mode</th>
+                  <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-right">Amount Paid</th>
+                  <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-plum/10">
+                {payments.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-xs font-medium text-plum/50 bg-milk">
+                      No payment records found for this member.
+                    </td>
+                  </tr>
                 ) : (
-                  payments.map((payment) => {
+                  payments.map(payment => {
                     const isVoided = !!payment.voided_at;
                     return (
-                      <TableRow 
+                      <tr 
                         key={payment.id} 
-                        className={`hover:bg-slate-50 transition-colors ${isVoided ? 'bg-slate-50/50' : ''}`}
+                        className={`hover:bg-plum hover:text-milk transition-all duration-200 ease-in-out cursor-pointer group active:bg-plum/95 ${
+                          isVoided ? 'bg-plum/5 opacity-70' : ''
+                        }`}
                       >
-                        <TableCell className={`font-mono text-xs font-semibold ${isVoided ? 'text-slate-400' : 'text-slate-900'}`}>
-                          {payment.receipt_number}
-                        </TableCell>
-                        <TableCell className={`text-sm tabular-nums ${isVoided ? 'text-slate-400' : 'text-slate-600'}`}>
-                          {format(new Date(payment.paid_at), "dd MMM yyyy, HH:mm")}
-                        </TableCell>
-                        <TableCell className={`text-sm tabular-nums ${isVoided ? 'text-slate-400' : 'text-slate-600'}`}>
-                          {format(new Date(payment.installment_month), "MMMM yyyy")}
-                        </TableCell>
-                        <TableCell className={`capitalize ${isVoided ? 'text-slate-400' : 'text-slate-600'}`}>
-                          {payment.payment_mode.replace('_', ' ')}
-                        </TableCell>
-                        <TableCell className={`text-right font-medium tabular-nums ${
-                          isVoided ? 'text-slate-400 line-through' : 'text-slate-900'
-                        }`}>
-                          {formatCurrency(payment.total_paid)}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge 
-                            variant="secondary" 
-                            className={`font-semibold uppercase tracking-wider text-[10px] ${
-                              isVoided 
-                                ? 'bg-zinc-100 text-zinc-600 border border-zinc-200 hover:bg-zinc-200' 
-                                : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                            }`}
-                          >
-                            {isVoided ? "Voided" : "Success"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
+                        {/* Date */}
+                        <td className="px-6 py-4 text-xs font-bold font-mono">
+                          {new Date(payment.payment_date).toLocaleDateString()}
+                        </td>
+                        {/* Receipt */}
+                        <td className="px-6 py-4 font-mono font-bold text-xs">
+                          <span className={isVoided ? 'line-through text-plum/40 group-hover:text-milk/50' : 'text-plum group-hover:text-milk'}>
+                            {payment.receipt_number}
+                          </span>
+                          {isVoided && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-plum text-milk border border-milk/10 text-[8px] font-bold uppercase tracking-wide group-hover:bg-milk group-hover:text-plum transition-colors duration-200">
+                              VOIDED
+                            </span>
+                          )}
+                        </td>
+                        {/* Mode */}
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center px-2.5 py-0.5 bg-plum/5 border border-plum/10 text-plum text-[9px] font-bold rounded-lg uppercase group-hover:bg-milk group-hover:text-plum group-hover:border-plum/10 transition-colors duration-200">
+                            {payment.payment_mode.replace('_', ' ')}
+                          </span>
+                        </td>
+                        {/* Amount */}
+                        <td className="px-6 py-4 font-mono font-black text-sm text-right">
+                          {formatCurrency(payment.amount)}
+                        </td>
+                        {/* Actions */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                generateReceiptPDF(payment);
+                              }}
+                              className="p-2 border border-plum text-plum bg-milk hover:bg-plum hover:text-milk rounded-lg transition-all duration-200 shadow-plum-sm hover:scale-105 active:scale-90 group-hover:bg-milk group-hover:text-plum cursor-pointer"
+                              title="Download Receipt PDF"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </button>
+                            {!isVoided ? (
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPaymentForVoid(payment);
+                                }}
+                                className="p-2 border border-plum text-plum bg-milk hover:bg-plum hover:text-milk rounded-lg transition-all duration-200 shadow-plum-sm hover:scale-105 active:scale-90 group-hover:bg-milk group-hover:text-plum cursor-pointer"
+                                title="Void Transaction"
+                              >
+                                <Ban className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <div className="p-2 opacity-30 text-plum group-hover:text-milk/50" title={`Voided Reason: ${payment.void_reason}`}>
+                                <Ban className="w-3.5 h-3.5" />
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
                     );
                   })
                 )}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <WhatsAppReminderModal 
-        open={isReminderOpen} 
-        onOpenChange={setIsReminderOpen} 
+      <RecordPaymentModal 
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        preselectedMemberId={member.id}
+        preselectedGroupId={member.group_id}
+        onSuccess={() => {
+          setIsPaymentModalOpen(false);
+          loadMemberData();
+        }}
       />
+
+      {selectedPaymentForVoid && (
+        <VoidPaymentModal 
+          isOpen={!!selectedPaymentForVoid}
+          onClose={() => setSelectedPaymentForVoid(null)}
+          paymentId={selectedPaymentForVoid.id}
+          receiptNumber={selectedPaymentForVoid.receipt_number}
+          onSuccess={() => {
+            setSelectedPaymentForVoid(null);
+            loadMemberData();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,201 +1,327 @@
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { formatCurrency } from "@/lib/formatCurrency";
-import { format } from "date-fns";
-import { MoreHorizontal, Download, Ban, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-
-type PaymentRow = {
-  id: string;
-  receipt_number: string;
-  paid_at: string;
-  member_id: string;
-  group_id: string;
-  payment_mode: string;
-  total_paid: number;
-  voided_at: string | null;
-  members?: { name: string };
-  chit_groups?: { name: string };
-};
+import { formatCurrency } from "@/lib/formatCurrency";
+import { Loader2, Search, Download, Ban } from "lucide-react";
+import { VoidPaymentModal } from "@/components/payments/VoidPaymentModal";
+import { generateReceiptPDF } from "@/lib/pdfGenerator";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { setupPdfFonts, formatCurrencyForPdf } from "@/lib/pdfFont";
+import { format } from "date-fns";
 
 export function Payments() {
-  const { t } = useTranslation();
-  const [payments, setPayments] = useState<PaymentRow[]>([]);
+  const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Void modal state
+  const [selectedPaymentForVoid, setSelectedPaymentForVoid] = useState<any>(null);
+
+  const fetchPayments = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("payments")
+      .select(`
+        *,
+        members ( name ),
+        chit_groups ( name )
+      `)
+      .order("paid_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching payments ledger:", error);
+    } else if (data) {
+      const mapped = data.map((p: any) => ({
+        ...p,
+        member_name: p.members?.name || "Unknown",
+        group_name: p.chit_groups?.name || "Unknown",
+        payment_date: p.paid_at,
+        amount: p.total_paid
+      }));
+      setPayments(mapped);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     fetchPayments();
   }, []);
 
-  async function fetchPayments() {
-    setLoading(true);
-    // Use active_payments_view to exclude voided by default (as per DB design),
-    // but the UI design has a "Voided" status. If the view excludes them, we can't show them.
-    // The TRD says "The frontend will query this view for ledgers to guarantee voided payments never accidentally leak into calculations."
-    // For a comprehensive ledger, maybe we query `payments`? Or just `active_payments_view`?
-    // We'll query `payments` here because the ledger explicitly shows Voided payments in the design.
-    // Wait, let's use `payments` and just render the voided status correctly. Calculations will use the view.
-    const { data, error } = await supabase
-      .from("payments")
-      .select(`
-        *,
-        members(name),
-        chit_groups(name)
-      `)
-      .order("paid_at", { ascending: false });
+  const filteredPayments = payments.filter((p) =>
+    p.receipt_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.member_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.group_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    if (data) {
-      setPayments(data as any);
-    } else if (error) {
-      console.error(error);
-    }
-    setLoading(false);
-  }
+  const downloadLedgerPDF = async () => {
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
+    });
 
-  const handleVoidPayment = async (id: string) => {
-    const reason = prompt("Enter reason for voiding this payment:");
-    if (!reason) return;
-    
-    try {
-      const { error } = await supabase.rpc("void_payment", {
-        p_payment_id: id,
-        p_void_reason: reason
-      });
-      if (error) throw error;
-      fetchPayments();
-    } catch (err: any) {
-      alert("Failed to void: " + err.message);
-    }
+    const hasCustomFont = await setupPdfFonts(doc);
+    const fontName = hasCustomFont ? "Roboto" : "helvetica";
+    doc.setFont(fontName, "normal");
+
+    // Company Branding
+    doc.setFont(fontName, "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(55, 25, 49); // PLUM (#371931)
+    doc.text("CHITLEDGER MANAGEMENT", 15, 20);
+
+    doc.setFontSize(11);
+    doc.setFont(fontName, "bold");
+    doc.setTextColor(55, 25, 49);
+    doc.text("PAYMENTS TRANSACTION LEDGER", 15, 26);
+
+    doc.setFontSize(8.5);
+    doc.setFont(fontName, "normal");
+    doc.setTextColor(80, 80, 80);
+    doc.text(`Total Audited Records: ${filteredPayments.length}`, 15, 32);
+    doc.text(`Export Timestamp: ${new Date().toLocaleString("en-IN")}`, 15, 36);
+
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.25);
+    doc.line(15, 40, 195, 40);
+
+    const headers = ["Date Recorded", "Receipt No", "Member Name", "Group Name", "Payment Mode", "Amount Paid"];
+    const body = filteredPayments.map((p) => [
+      new Date(p.payment_date).toLocaleDateString("en-IN"),
+      p.receipt_number + (p.voided_at ? " (VOIDED)" : ""),
+      p.member_name,
+      p.group_name,
+      p.payment_mode.replace("_", " ").toUpperCase(),
+      formatCurrencyForPdf(p.amount, hasCustomFont)
+    ]);
+
+    const totalSum = filteredPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    const foot = [["Total Ledger Summary", "", "", "", "", formatCurrencyForPdf(totalSum, hasCustomFont)]];
+
+    autoTable(doc, {
+      startY: 44,
+      margin: { left: 15, right: 15 },
+      head: [headers],
+      body: body,
+      foot: foot,
+      theme: "plain",
+      styles: {
+        font: fontName,
+        fontSize: 8,
+        cellPadding: 3.5,
+        valign: "middle",
+        lineColor: [180, 180, 180],
+        lineWidth: 0.15,
+        textColor: [55, 25, 49]
+      },
+      headStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [55, 25, 49],
+        fontStyle: "bold",
+        fontSize: 8.5,
+        lineWidth: 0.15,
+        lineColor: [180, 180, 180]
+      },
+      alternateRowStyles: {
+        fillColor: [255, 255, 255]
+      },
+      footStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [55, 25, 49],
+        fontStyle: "bold",
+        lineWidth: 0.25,
+        lineColor: [55, 25, 49],
+        fontSize: 8
+      },
+      columnStyles: {
+        0: { cellWidth: 25 }, // Date
+        1: { cellWidth: 28 }, // Receipt No
+        2: { cellWidth: 35 }, // Member Name
+        3: { cellWidth: 32 }, // Group Name
+        4: { cellWidth: 30 }, // Payment Mode
+        5: { cellWidth: 30, halign: "right" } // Amount Paid
+      },
+      didDrawPage: () => {
+        const str = "Page " + doc.getNumberOfPages();
+        doc.setFont(fontName, "normal");
+        doc.setFontSize(7.5);
+        doc.setTextColor(55, 25, 49, 0.5);
+        doc.text(str, doc.internal.pageSize.width - 25, doc.internal.pageSize.height - 10);
+        doc.text(
+          "Generated by CHITLEDGER Management System",
+          15,
+          doc.internal.pageSize.height - 10
+        );
+      }
+    });
+
+    doc.save(`payments_ledger_${format(new Date(), "yyyyMMdd")}.pdf`);
   };
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-12 bg-milk text-plum font-body-md">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 display-font tracking-tight">
-            Payment Ledger
-          </h1>
-          <p className="text-slate-500 font-medium mt-1">Immutable audit log of all cash flows.</p>
+          <h1 className="text-3xl font-extrabold text-plum tracking-tight">Payments Ledger</h1>
+          <p className="text-sm font-medium text-plum/60 mt-1 font-outfit">Audit log of all processed and voided transactions.</p>
         </div>
       </div>
-      
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto min-h-[200px]">
-          <Table>
-            <TableHeader className="bg-slate-50">
-              <TableRow>
-                <TableHead className="font-semibold text-slate-900">Receipt #</TableHead>
-                <TableHead className="font-semibold text-slate-900">Date</TableHead>
-                <TableHead className="font-semibold text-slate-900">Member</TableHead>
-                <TableHead className="font-semibold text-slate-900">Group</TableHead>
-                <TableHead className="font-semibold text-slate-900">Mode</TableHead>
-                <TableHead className="font-semibold text-slate-900 text-right">Amount</TableHead>
-                <TableHead className="font-semibold text-slate-900 text-center">Status</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-32 text-center">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-slate-400" />
-                  </TableCell>
-                </TableRow>
-              ) : payments.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-32 text-center text-slate-500">
-                    No payments found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                payments.map((payment) => {
+
+      {/* Toolbar / Search */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-milk p-4 border border-plum/20 rounded-lg shadow-plum-sm">
+        <div className="relative flex-1 max-w-md group">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 group-focus-within:text-plum transition-colors duration-200" />
+          <input 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 text-sm input-milk shadow-plum-sm" 
+            placeholder="Search by receipt number, member, or group..." 
+            type="text"
+          />
+        </div>
+        
+        <div className="flex items-center justify-between sm:justify-end gap-3.5">
+          <span className="text-xs font-bold text-plum bg-milk border border-plum/25 px-3 py-1 rounded-lg uppercase tracking-wider hidden sm:inline-block select-none">
+            {filteredPayments.length} transaction{filteredPayments.length !== 1 ? 's' : ''} audited
+          </span>
+          {filteredPayments.length > 0 && (
+            <button 
+              onClick={downloadLedgerPDF}
+              className="btn-milk px-4 py-2.5 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            >
+              <Download className="w-4 h-4" />
+              Download Ledger PDF
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Data Table Container with hover elevation wrapper */}
+      <div className="card-milk min-h-[300px] overflow-hidden">
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-plum" />
+          </div>
+        ) : filteredPayments.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-16 text-center">
+            <div className="w-14 h-14 bg-plum/5 border border-plum/15 rounded-lg flex items-center justify-center mb-4 shadow-plum-sm">
+              <Loader2 className="w-6 h-6 text-plum" />
+            </div>
+            <h3 className="text-base font-bold text-plum mb-1">No Payments Found</h3>
+            <p className="text-xs text-plum/60 max-w-sm mx-auto leading-relaxed">
+              No transactions have been recorded under the specified search criteria.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[900px]">
+              <thead className="bg-plum text-milk border-b border-plum/20">
+                <tr>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Date Recorded</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Receipt No</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Member Name</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Group Name</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Payment Mode</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Amount Paid</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-plum/10">
+                {filteredPayments.map((payment) => {
                   const isVoided = !!payment.voided_at;
                   return (
-                    <TableRow 
+                    <tr 
                       key={payment.id} 
-                      className={`hover:bg-slate-50 transition-colors ${isVoided ? 'bg-slate-50/50' : ''}`}
+                      className={`hover:bg-plum hover:text-milk transition-all duration-200 ease-in-out cursor-pointer group active:bg-plum/95 ${
+                        isVoided ? 'bg-plum/5 opacity-70' : ''
+                      }`}
                     >
-                      <TableCell className={`font-mono text-xs font-semibold ${isVoided ? 'text-slate-400' : 'text-slate-900'}`}>
-                        {payment.receipt_number}
-                      </TableCell>
-                      <TableCell className={`text-sm tabular-nums ${isVoided ? 'text-slate-400' : 'text-slate-600'}`}>
-                        {format(new Date(payment.paid_at), "dd MMM yyyy, HH:mm")}
-                      </TableCell>
-                      <TableCell className={`font-semibold ${isVoided ? 'text-slate-400' : 'text-slate-900'}`}>
-                        {payment.members?.name || "Unknown"}
-                      </TableCell>
-                      <TableCell className={isVoided ? 'text-slate-400' : 'text-slate-600'}>
-                        {payment.chit_groups?.name || "Unknown"}
-                      </TableCell>
-                      <TableCell className={`capitalize ${isVoided ? 'text-slate-400' : 'text-slate-600'}`}>
-                        {payment.payment_mode.replace('_', ' ')}
-                      </TableCell>
-                      <TableCell className={`text-right font-medium tabular-nums ${
-                        isVoided ? 'text-slate-400 line-through' : 'text-slate-900'
-                      }`}>
-                        {formatCurrency(payment.total_paid)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge 
-                          variant="secondary" 
-                          className={`font-semibold uppercase tracking-wider text-[10px] ${
-                            isVoided 
-                              ? 'bg-zinc-100 text-zinc-600 border border-zinc-200 hover:bg-zinc-200' 
-                              : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                          }`}
-                        >
-                          {isVoided ? "Voided" : "Success"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="cursor-pointer">
-                              <Download className="mr-2 h-4 w-4" />
-                              <span>Download Receipt</span>
-                            </DropdownMenuItem>
-                            {!isVoided && (
-                              <DropdownMenuItem 
-                                className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                                onClick={() => handleVoidPayment(payment.id)}
-                              >
-                                <Ban className="mr-2 h-4 w-4" />
-                                <span>Void Payment</span>
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                      {/* Date */}
+                      <td className="px-6 py-4 text-xs font-bold font-mono">
+                        {new Date(payment.payment_date).toLocaleDateString()}
+                      </td>
+                      {/* Receipt */}
+                      <td className="px-6 py-4 font-mono font-bold text-xs">
+                        <span className={isVoided ? 'line-through text-plum/45 group-hover:text-milk/50' : 'text-plum group-hover:text-milk'}>
+                          {payment.receipt_number}
+                        </span>
+                        {isVoided && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-plum text-milk border border-milk/10 text-[8px] font-bold uppercase tracking-wide group-hover:bg-milk group-hover:text-plum transition-colors duration-200">
+                            Voided
+                          </span>
+                        )}
+                      </td>
+                      {/* Member */}
+                      <td className="px-6 py-4 text-sm font-bold">
+                        {payment.member_name}
+                      </td>
+                      {/* Group */}
+                      <td className="px-6 py-4 text-xs font-semibold">
+                        {payment.group_name}
+                      </td>
+                      {/* Mode */}
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 bg-plum/5 border border-plum/10 text-plum text-[9px] font-bold rounded-lg uppercase group-hover:bg-milk group-hover:text-plum group-hover:border-plum/10 transition-colors duration-200">
+                          {payment.payment_mode.replace('_', ' ')}
+                        </span>
+                      </td>
+                      {/* Amount */}
+                      <td className="px-6 py-4 font-mono font-black text-sm text-right">
+                        {formatCurrency(payment.amount)}
+                      </td>
+                      {/* Actions */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              generateReceiptPDF(payment);
+                            }}
+                            className="p-2 border border-plum text-plum bg-milk hover:bg-plum hover:text-milk rounded-lg transition-all duration-200 shadow-plum-sm hover:scale-105 active:scale-90 group-hover:bg-milk group-hover:text-plum cursor-pointer"
+                            title="Download Receipt PDF"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+                          {!isVoided ? (
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPaymentForVoid(payment);
+                              }}
+                              className="p-2 border border-plum text-plum bg-milk hover:bg-plum hover:text-milk rounded-lg transition-all duration-200 shadow-plum-sm hover:scale-105 active:scale-90 group-hover:bg-milk group-hover:text-plum cursor-pointer"
+                              title="Void Transaction"
+                            >
+                              <Ban className="w-3.5 h-3.5" />
+                            </button>
+                          ) : (
+                            <div className="p-2 opacity-30 text-plum group-hover:text-milk/50" title={`Voided Reason: ${payment.void_reason}`}>
+                              <Ban className="w-3.5 h-3.5" />
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
                   );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {selectedPaymentForVoid && (
+        <VoidPaymentModal 
+          isOpen={!!selectedPaymentForVoid}
+          onClose={() => setSelectedPaymentForVoid(null)}
+          paymentId={selectedPaymentForVoid.id}
+          receiptNumber={selectedPaymentForVoid.receipt_number}
+          onSuccess={() => {
+            setSelectedPaymentForVoid(null);
+            fetchPayments();
+          }}
+        />
+      )}
     </div>
   );
 }

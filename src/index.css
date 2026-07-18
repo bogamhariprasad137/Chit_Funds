@@ -1,15 +1,116 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+Telugu:wght@100..900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  body {
-    font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root {
+    --background: 32 100% 95%; /* #FFF3E5 (MILK) */
+    --foreground: 312 38% 16%; /* #371931 (PLUM) */
+
+    --card: 32 100% 95%;
+    --card-foreground: 312 38% 16%;
+
+    --popover: 32 100% 95%;
+    --popover-foreground: 312 38% 16%;
+
+    --primary: 312 38% 16%;
+    --primary-foreground: 32 100% 95%;
+
+    --secondary: 32 100% 95%;
+    --secondary-foreground: 312 38% 16%;
+
+    --muted: 32 100% 95%;
+    --muted-foreground: 312 38% 16%;
+
+    --accent: 312 38% 16%;
+    --accent-foreground: 32 100% 95%;
+
+    --destructive: 312 38% 16%;
+    --destructive-foreground: 32 100% 95%;
+
+    --border: 312 38% 16%;
+    --input: 312 38% 16%;
+    --ring: 312 38% 16%;
+
+    --radius: 0.5rem; /* Strict 8px corners */
+  }
+
+  * {
+    @apply border-plum/20;
   }
   
-  h1, h2, h3, h4, h5, h6, .display-font {
-    font-family: 'Instrument Sans', 'Noto Sans Telugu', sans-serif;
+  body {
+    @apply bg-background text-on-background font-outfit antialiased selection:bg-plum/10 selection:text-plum;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-outfit tracking-tight;
+  }
+
+  .font-outfit {
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .font-geist, .font-data-mono, .font-label-caps {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  /* Buttons System */
+  .btn-plum {
+    @apply bg-plum text-milk border border-transparent shadow-plum-sm hover:-translate-y-0.5 hover:shadow-plum-md hover:bg-milk hover:text-plum hover:border-plum transition-all duration-200 ease-in-out active:translate-y-0 active:scale-[0.97] focus:ring-2 focus:ring-plum/30 focus:outline-none cursor-pointer font-bold text-xs;
+  }
+  
+  .btn-milk {
+    @apply bg-milk text-plum border border-plum/25 shadow-plum-sm hover:-translate-y-0.5 hover:shadow-plum-md hover:bg-plum hover:text-milk hover:border-milk transition-all duration-200 ease-in-out active:translate-y-0 active:scale-[0.97] focus:ring-2 focus:ring-plum/30 focus:outline-none cursor-pointer font-bold text-xs;
+  }
+
+  /* Cards System */
+  .card-milk {
+    @apply bg-milk border border-plum/20 shadow-plum-sm hover:-translate-y-1 hover:shadow-plum-md hover:border-plum/45 transition-all duration-200 ease-in-out rounded-lg;
+  }
+
+  /* Form Inputs System */
+  .input-milk {
+    @apply bg-milk border border-plum/25 text-plum rounded-lg focus:outline-none hover:border-plum/70 focus:border-plum focus:ring-2 focus:ring-plum/10 transition-all duration-200 ease-in-out shadow-plum-sm focus:shadow-plum-md font-bold;
+  }
+
+  /* Icon Actions */
+  .clickable-icon {
+    @apply transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 cursor-pointer;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Material Symbols configuration */
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24;
 }

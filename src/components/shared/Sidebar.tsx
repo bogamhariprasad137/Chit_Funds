@@ -1,81 +1,145 @@
 import { NavLink } from "react-router";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
+  Menu, 
+  X, 
+  Landmark, 
   LayoutDashboard, 
   Clock, 
-  CreditCard, 
+  Receipt, 
+  Boxes, 
   Users, 
-  UserSquare2, 
-  Megaphone, 
-  FileText, 
-  Settings,
-  LogOut
+  Coins, 
+  BarChart3, 
+  Settings, 
+  LogOut 
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
-const NAV_ITEMS = [
-  { label: "Dashboard", path: "/", icon: LayoutDashboard },
-  { label: "Pending", path: "/pending", icon: Clock },
-  { label: "Payments", path: "/payments", icon: CreditCard },
-  { label: "Groups", path: "/groups", icon: Users },
-  { label: "Members", path: "/members", icon: UserSquare2 },
-  { label: "Releases", path: "/releases", icon: Megaphone },
-  { label: "Reports", path: "/reports", icon: FileText },
-  { label: "Settings", path: "/settings", icon: Settings },
-];
+export function Sidebar() {
+  const { signOut } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
-export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+  const navItems = [
+    { to: "/", icon: LayoutDashboard, label: "Dashboard", end: true },
+    { to: "/pending", icon: Clock, label: "Pending Payments" },
+    { to: "/payments", icon: Receipt, label: "Payments Ledger" },
+    { to: "/groups", icon: Boxes, label: "Chit Groups" },
+    { to: "/members", icon: Users, label: "Members List" },
+    { to: "/releases", icon: Coins, label: "Chit Releases" },
+    { to: "/reports", icon: BarChart3, label: "Financial Reports" },
+  ];
+
   return (
     <>
-      <nav className="flex-1 space-y-1">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={onNavigate}
-              className={({ isActive }) =>
-                `group flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-                  isActive
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                }`
-              }
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-sm">{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
-      
-      <div className="mt-auto px-4 py-4 bg-slate-100 rounded-xl flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-8 h-8 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">
-            AL
+      {/* Mobile Toggle Button */}
+      <button 
+        className="md:hidden fixed top-3.5 left-4 z-[60] p-2 bg-milk text-plum rounded-lg shadow-plum-sm border border-plum/20 hover:bg-milk/95 transition-all duration-200 active:scale-95 cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label="Toggle Sidebar"
+      >
+        {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+      </button>
+
+      {/* Overlay Backdrop */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-plum/30 backdrop-blur-xs z-[45] animate-in fade-in duration-200"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar container */}
+      <nav className={`
+        fixed left-0 top-0 h-full w-[260px] bg-plum flex flex-col pt-16 pb-6 px-4 z-40 border-r border-milk/10 shadow-milk-lg
+        transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        {/* Brand/Logo Header */}
+        <div className="mb-8 px-3 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-milk flex items-center justify-center text-plum shadow-milk-sm transition-transform duration-200 hover:rotate-6">
+            <Landmark className="w-4.5 h-4.5" />
           </div>
-          <div className="overflow-hidden">
-            <p className="text-sm font-semibold truncate text-slate-900">Admin</p>
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest">Premium Tier</p>
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-milk leading-none">
+              Chit<span className="text-milk/80 font-medium">Ledger</span>
+            </h1>
+            <p className="text-[9px] font-bold text-milk/60 uppercase tracking-wider mt-1">
+              Financial Suite
+            </p>
           </div>
         </div>
         
-        <button 
-          onClick={useAuth().signOut} 
-          className="text-slate-400 hover:text-red-500 transition-colors p-1"
-          title="Sign out"
-        >
-          <LogOut className="w-5 h-5" />
-        </button>
-      </div>
-    </>
-  );
-}
+        {/* Navigation list */}
+        <div className="flex flex-col gap-1 overflow-y-auto scrollbar-hide flex-1 px-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) => `
+                  group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 ease-in-out active:scale-[0.97] relative text-[13px] font-bold cursor-pointer
+                  ${isActive 
+                    ? 'bg-milk text-plum shadow-milk-sm translate-x-1 pl-2.5' 
+                    : 'text-milk/75 hover:text-milk hover:bg-milk/10 hover:translate-x-0.5'
+                  }
+                `}
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon 
+                      className={`w-4 h-4 shrink-0 transition-all duration-200 group-hover:scale-105 ${
+                        isActive ? 'text-plum' : 'text-milk/60 group-hover:text-milk'
+                      }`}
+                    />
+                    <span className="tracking-tight">{item.label}</span>
+                  </>
+                )}
+              </NavLink>
+            );
+          })}
+          
+          {/* Settings Section */}
+          <div className="mt-3 pt-3 border-t border-milk/10">
+            <NavLink
+              to="/settings"
+              onClick={() => setIsOpen(false)}
+              className={({ isActive }) => `
+                group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 ease-in-out active:scale-[0.97] relative text-[13px] font-bold cursor-pointer
+                ${isActive 
+                  ? 'bg-milk text-plum shadow-milk-sm translate-x-1 pl-2.5' 
+                  : 'text-milk/75 hover:text-milk hover:bg-milk/10 hover:translate-x-0.5'
+                }
+              `}
+            >
+              {({ isActive }) => (
+                <>
+                  <Settings 
+                    className={`w-4 h-4 shrink-0 transition-all duration-200 group-hover:scale-105 ${
+                      isActive ? 'text-plum' : 'text-milk/60 group-hover:text-milk'
+                    }`}
+                  />
+                  <span className="tracking-tight">System Settings</span>
+                </>
+              )}
+            </NavLink>
+          </div>
+        </div>
 
-export function Sidebar() {
-  return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-full w-[260px] bg-slate-50 flex-col pt-20 pb-8 px-4 z-40 border-r border-slate-200">
-      <SidebarNav />
-    </aside>
+        {/* Footer Log Out Area */}
+        <div className="mt-auto pt-4 border-t border-milk/10 px-1">
+          <button 
+            onClick={() => signOut()}
+            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-milk/90 hover:bg-milk/10 hover:text-milk transition-all duration-200 ease-in-out active:scale-[0.97] text-[13px] font-bold cursor-pointer hover:translate-x-0.5"
+          >
+            <LogOut className="w-4 h-4 shrink-0 transition-all duration-200 group-hover:scale-105" />
+            <span className="tracking-tight">Sign Out Session</span>
+          </button>
+        </div>
+      </nav>
+    </>
   );
 }

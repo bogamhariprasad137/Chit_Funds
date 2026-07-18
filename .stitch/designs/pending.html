@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pending Dues | ChitLedger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c5c6cd",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#eae7e9",
+                        "on-tertiary-container": "#7c839b",
+                        "on-primary-fixed-variant": "#3d475b",
+                        "surface-dim": "#f1f5f9",
+                        "on-surface-variant": "#45474c",
+                        "on-secondary-fixed": "#00174b",
+                        "secondary-container": "#316bf3",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e4e2e3",
+                        "on-primary-fixed": "#111c2e",
+                        "tertiary-fixed": "#dae2fd",
+                        "surface-bright": "#fbf8fa",
+                        "on-primary-container": "#7a849b",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#545f74",
+                        "outline": "#94a3b8",
+                        "inverse-surface": "#303032",
+                        "primary": "#000000",
+                        "on-secondary-container": "#fefcff",
+                        "on-background": "#1b1b1d",
+                        "surface-container": "#f0edef",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "error": "#dc2626",
+                        "tertiary-container": "#131b2e",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-error": "#ffffff",
+                        "primary-container": "#1e293b",
+                        "on-tertiary-fixed": "#131b2e",
+                        "primary-fixed": "#d8e2fc",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f3f0f2",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#fbf8fa",
+                        "primary-fixed-dim": "#bcc7df",
+                        "inverse-primary": "#bcc7df",
+                        "on-surface": "#1b1b1d",
+                        "background": "#fbf8fa",
+                        "surface-variant": "#e4e2e3",
+                        "surface-container-low": "#f6f3f5",
+                        "tertiary": "#000000",
+                        "secondary": "#0051d5",
+                        "on-tertiary-fixed-variant": "#3f465c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.375rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sidebar-width": "260px",
+                        "base": "8px",
+                        "container-margin": "24px",
+                        "margin": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-mono": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .data-mono-text { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-surface-dim text-on-surface antialiased">
+<!-- SideNavBar Shell -->
+<aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-primary-container text-secondary border-r border-outline-variant z-50 flex flex-col p-container-margin">
+<div class="mb-10">
+<h1 class="font-headline-md text-headline-md text-on-primary-fixed font-bold">ChitLedger</h1>
+<p class="text-on-primary-container font-body-sm text-body-sm opacity-80">Institutional Ledger</p>
+</div>
+<nav class="flex-grow space-y-2">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:bg-surface-container-high transition-colors duration-200 rounded-xl active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<!-- Groups (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:bg-surface-container-high transition-colors duration-200 rounded-xl active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-md text-body-md">Groups</span>
+</a>
+<!-- Members (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:bg-surface-container-high transition-colors duration-200 rounded-xl active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+<span class="font-body-md text-body-md">Members</span>
+</a>
+<!-- Pending Dues (Active - Map to "Pending Dues") -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container font-semibold rounded-xl active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-body-md text-body-md">Pending Dues</span>
+</a>
+<!-- Settings (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:bg-surface-container-high transition-colors duration-200 rounded-xl active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/20 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary font-bold">JD</div>
+<div class="overflow-hidden">
+<p class="text-on-secondary-container font-body-sm text-body-sm truncate">John Doe</p>
+<p class="text-on-primary-container text-[10px] uppercase tracking-wider">Admin</p>
+</div>
+</div>
+</aside>
+<!-- TopAppBar Shell -->
+<header class="h-16 fixed top-0 right-0 z-40 bg-surface border-b border-outline-variant flex items-center justify-between px-margin w-[calc(100%-260px)] ml-sidebar-width">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-lg text-headline-lg text-primary">Pending Dues</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border border-outline-variant rounded focus:ring-1 focus:ring-secondary focus:border-secondary text-body-md w-64 transition-all" placeholder="Search members..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-secondary cursor-pointer active:opacity-80 transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-secondary cursor-pointer active:opacity-80 transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<button class="bg-secondary text-on-secondary px-5 py-2 font-semibold text-body-md rounded hover:bg-on-secondary-fixed-variant transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="send">send</span>
+                    Send Reminders
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-sidebar-width mt-16 p-container-margin min-h-screen bg-slate-50">
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-8">
+<div class="bg-white border border-outline-variant p-5 rounded-xl flex items-center justify-between group hover:border-secondary transition-colors cursor-default">
+<div>
+<p class="text-on-surface-variant font-label-caps text-label-caps uppercase mb-1">Total Pending</p>
+<h3 class="font-display-lg text-display-lg text-primary data-mono-text">₹1,45,000</h3>
+</div>
+<div class="p-3 bg-secondary-fixed/30 rounded-lg group-hover:bg-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-secondary" data-icon="payments">payments</span>
+</div>
+</div>
+<div class="bg-white border border-outline-variant p-5 rounded-xl flex items-center justify-between group hover:border-error transition-colors cursor-default">
+<div>
+<p class="text-on-surface-variant font-label-caps text-label-caps uppercase mb-1">Defaulters</p>
+<h3 class="font-display-lg text-display-lg text-error data-mono-text">14</h3>
+</div>
+<div class="p-3 bg-error-container rounded-lg group-hover:bg-error/10 transition-colors">
+<span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+</div>
+</div>
+<!-- Visualization Decorative Element -->
+<div class="hidden lg:block lg:col-span-2 relative bg-primary-container rounded-xl overflow-hidden border border-primary p-5 text-on-primary">
+
+<div class="relative z-10">
+<h4 class="font-headline-md text-headline-md mb-1">Recovery Insights</h4>
+<p class="text-on-primary-container text-body-sm">Tracking 24 active ledger groups with real-time settlement forecasting.</p>
+</div>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex flex-wrap items-center gap-4 mb-6 bg-white p-4 border border-outline-variant rounded-xl shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[18px]" data-icon="filter_list">filter_list</span>
+<span class="text-on-surface-variant font-label-caps text-label-caps">Filters:</span>
+</div>
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border border-outline-variant text-body-md py-1.5 pl-4 pr-10 rounded focus:border-secondary focus:ring-secondary w-40">
+<option>All Groups</option>
+<option>Alpha Group</option>
+<option>Beta Group</option>
+<option>Gamma Group</option>
+</select>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline pointer-events-none text-[16px]" data-icon="expand_more">expand_more</span>
+</div>
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border border-outline-variant text-body-md py-1.5 pl-4 pr-10 rounded focus:border-secondary focus:ring-secondary w-44">
+<option>Overdue By: All</option>
+<option>&gt; 30 Days</option>
+<option>&gt; 15 Days</option>
+<option>&gt; 5 Days</option>
+</select>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline pointer-events-none text-[16px]" data-icon="expand_more">expand_more</span>
+</div>
+<div class="ml-auto flex items-center gap-2">
+<button class="p-1.5 hover:bg-surface-container rounded text-outline-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+<button class="p-1.5 hover:bg-surface-container rounded text-outline-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="print">print</span>
+</button>
+</div>
+</div>
+<!-- Pending Dues Table -->
+<div class="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden mb-12">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-100 border-b border-outline-variant">
+<th class="px-6 py-4 font-label-caps text-label-caps text-slate-700 uppercase tracking-wider">Member Name</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-slate-700 uppercase tracking-wider">Group</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-slate-700 uppercase tracking-wider text-center">Installment</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-slate-700 uppercase tracking-wider text-right">Amount Due</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-slate-700 uppercase tracking-wider text-center">Days Overdue</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-slate-700 uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container text-[10px] text-on-primary-container flex items-center justify-center font-bold">RV</div>
+<span class="font-body-md text-body-md font-semibold text-primary">Rohit Varma</span>
+</div>
+</td>
+<td class="px-6 py-3 text-body-md text-on-surface-variant">Alpha Group</td>
+<td class="px-6 py-3 text-center">
+<span class="bg-surface-container-high px-2 py-0.5 rounded text-[11px] font-bold text-on-surface-variant">#4</span>
+</td>
+<td class="px-6 py-3 text-right font-data-mono text-data-mono-text text-primary">₹5,000</td>
+<td class="px-6 py-3 text-center">
+<span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-error-container text-on-error-container">12 Days</span>
+</td>
+<td class="px-6 py-3 text-right">
+<button class="p-2 border border-secondary text-secondary rounded hover:bg-secondary hover:text-white transition-all active:scale-95" title="Remind via WhatsApp">
+<span class="material-symbols-outlined text-[18px]" data-icon="chat">chat</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container text-[10px] text-on-primary-container flex items-center justify-center font-bold">PS</div>
+<span class="font-body-md text-body-md font-semibold text-primary">Priya Sharma</span>
+</div>
+</td>
+<td class="px-6 py-3 text-body-md text-on-surface-variant">Beta Group</td>
+<td class="px-6 py-3 text-center">
+<span class="bg-surface-container-high px-2 py-0.5 rounded text-[11px] font-bold text-on-surface-variant">#2</span>
+</td>
+<td class="px-6 py-3 text-right font-data-mono text-data-mono-text text-primary">₹12,500</td>
+<td class="px-6 py-3 text-center">
+<span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-orange-100 text-orange-800">5 Days</span>
+</td>
+<td class="px-6 py-3 text-right">
+<button class="p-2 border border-secondary text-secondary rounded hover:bg-secondary hover:text-white transition-all active:scale-95" title="Remind via WhatsApp">
+<span class="material-symbols-outlined text-[18px]" data-icon="chat">chat</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 transition-colors group border-b-0">
+<td class="px-6 py-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container text-[10px] text-on-primary-container flex items-center justify-center font-bold">AK</div>
+<span class="font-body-md text-body-md font-semibold text-primary">Anil Kapoor</span>
+</div>
+</td>
+<td class="px-6 py-3 text-body-md text-on-surface-variant">Gamma Group</td>
+<td class="px-6 py-3 text-center">
+<span class="bg-surface-container-high px-2 py-0.5 rounded text-[11px] font-bold text-on-surface-variant">#1</span>
+</td>
+<td class="px-6 py-3 text-right font-data-mono text-data-mono-text text-primary">₹10,000</td>
+<td class="px-6 py-3 text-center">
+<span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-yellow-100 text-yellow-800">2 Days</span>
+</td>
+<td class="px-6 py-3 text-right">
+<button class="p-2 border border-secondary text-secondary rounded hover:bg-secondary hover:text-white transition-all active:scale-95" title="Remind via WhatsApp">
+<span class="material-symbols-outlined text-[18px]" data-icon="chat">chat</span>
+</button>
+</td>
+</tr>
+<!-- Additional spacing/empty rows for high-end look -->
+<tr class="h-12 bg-slate-50/20">
+<td colspan="6"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination-like Footer -->
+<div class="px-6 py-4 bg-surface border-t border-outline-variant flex items-center justify-between text-body-sm text-on-surface-variant">
+<div>Showing 1 - 3 of 14 defaulters</div>
+<div class="flex gap-2">
+<button class="p-1 border border-outline-variant rounded hover:bg-surface-container transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-1 border border-outline-variant rounded hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Informational / Action Section -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-white border border-outline-variant rounded-xl p-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[80px]" data-icon="analytics">analytics</span>
+</div>
+<h4 class="font-headline-md text-headline-md mb-2">Automated Escalation</h4>
+<p class="text-on-surface-variant text-body-md max-w-md mb-6">Users overdue by more than 15 days are automatically flagged for manual review. You can trigger bulk reminders for the entire list using the primary action button.</p>
+<div class="flex gap-4">
+<button class="text-secondary font-semibold text-body-md flex items-center gap-1 hover:underline">
+                        View Escalation Policy
+                        <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="bg-primary-container text-on-primary-fixed border border-primary rounded-xl p-6 flex flex-col justify-between">
+<div>
+<h4 class="font-headline-md text-headline-md mb-1">Upcoming Collections</h4>
+<p class="text-on-primary-container text-body-sm">Next 48 Hours</p>
+</div>
+<div class="mt-6 space-y-4">
+<div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+<span class="text-body-md">Sigma Wealth</span>
+<span class="font-data-mono text-secondary-fixed">₹45,000</span>
+</div>
+<div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+<span class="text-body-md">Omega Thrift</span>
+<span class="font-data-mono text-secondary-fixed">₹22,000</span>
+</div>
+</div>
+<button class="mt-6 w-full py-2 bg-secondary-container text-on-secondary-container rounded font-bold hover:brightness-110 transition-all">
+                    Sync Schedule
+                </button>
+</div>
+</div>
+</main>
+<!-- Footer Decoration -->
+<footer class="ml-sidebar-width py-8 px-container-margin text-center">
+<p class="text-outline text-[10px] font-label-caps uppercase tracking-widest">© 2024 ChitLedger Systems Inc. • Secure Institutional Banking Grade Ledger</p>
+</footer>
+<!-- Simple Interaction Script -->
+<script>
+        // Micro-interactions for table rows
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.querySelector('.material-symbols-outlined[data-icon="chat"]')?.classList.add('scale-110');
+            });
+            row.addEventListener('mouseleave', () => {
+                row.querySelector('.material-symbols-outlined[data-icon="chat"]')?.classList.remove('scale-110');
+            });
+        });
+    </script>
+</body></html>

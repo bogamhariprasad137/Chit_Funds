@@ -1,320 +1,270 @@
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { CalendarIcon, IndianRupee, Loader2 } from "lucide-react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/lib/supabase";
+import { Loader2, X, Landmark, User, Coins, CreditCard, MessageSquare, Calendar } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import type { Database } from "@/types/supabase";
-
-type ChitGroup = Database["public"]["Tables"]["chit_groups"]["Row"];
-type Member = Database["public"]["Tables"]["members"]["Row"];
-
-const formSchema = z.object({
-  groupId: z.string().min(1, "Group is required"),
-  memberId: z.string().min(1, "Member is required"),
-  amount: z.coerce.number().min(1, "Amount is required"),
-  releaseMonth: z.date(),
-  mode: z.enum(["cash", "upi", "bank_transfer"]),
-  remarks: z.string().optional(),
-});
+interface RecordReleaseModalProps {
+  open?: boolean;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onClose?: () => void;
+  onSuccess: () => void;
+  preselectedGroupId?: string;
+}
 
 export function RecordReleaseModal({
   open,
+  isOpen,
   onOpenChange,
+  onClose,
   onSuccess,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
-}) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [groups, setGroups] = useState<ChitGroup[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
+  preselectedGroupId,
+}: RecordReleaseModalProps) {
+  const visible = open !== undefined ? open : (isOpen || false);
+
+  const [groups, setGroups] = useState<any[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [groupId, setGroupId] = useState(preselectedGroupId || "");
+  const [memberId, setMemberId] = useState("");
+  const [amount, setAmount] = useState("");
+  const [releaseMonth, setReleaseMonth] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
+  const [paymentMode, setPaymentMode] = useState<"cash" | "upi" | "bank_transfer">("bank_transfer");
+  const [remarks, setRemarks] = useState("");
 
   useEffect(() => {
-    if (open) {
-      fetchGroups();
-      fetchMembers();
+    if (visible) {
+      const loadOptions = async () => {
+        const { data: groupsData } = await supabase.from("chit_groups").select("*").eq("status", "active");
+        const { data: membersData } = await supabase.from("members").select("*");
+        
+        if (groupsData) setGroups(groupsData);
+        if (membersData) setMembers(membersData);
+        
+        if (preselectedGroupId) setGroupId(preselectedGroupId);
+      };
+      
+      loadOptions();
+      setError(null);
+      setMemberId("");
+      setAmount("");
+      setRemarks("");
+      setReleaseMonth(new Date().toISOString().substring(0, 7));
+      setPaymentMode("bank_transfer");
     }
-  }, [open]);
+  }, [visible, preselectedGroupId]);
 
-  async function fetchGroups() {
-    const { data } = await supabase.from("chit_groups").select("*").eq("status", "active");
-    if (data) setGroups(data);
-  }
+  if (!visible) return null;
 
-  async function fetchMembers() {
-    const { data } = await supabase.from("members").select("*");
-    if (data) setMembers(data);
-  }
+  const handleClose = () => {
+    if (onOpenChange) onOpenChange(false);
+    if (onClose) onClose();
+  };
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    // @ts-ignore
-    resolver: zodResolver(formSchema) as any,
-    defaultValues: {
-      groupId: "",
-      memberId: "",
-      amount: undefined,
-      releaseMonth: new Date(),
-      mode: "bank_transfer",
-      remarks: "",
-    },
-  });
+  const filteredMembers = members.filter((m) => m.group_id === groupId);
 
-  const selectedGroupId = form.watch("groupId");
-  const filteredMembers = members.filter(m => m.group_id === selectedGroupId);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("chit_releases").insert({
-        group_id: values.groupId,
-        member_id: values.memberId,
-        release_month: format(values.releaseMonth, "yyyy-MM-01"),
-        amount: values.amount,
-        payment_mode: values.mode as any,
-        remarks: values.remarks || null,
+      if (!groupId) throw new Error("Please select a chit group.");
+      if (!memberId) throw new Error("Please select a winning member.");
+      if (!amount || Number(amount) <= 0) throw new Error("Please enter a valid payout amount.");
+      if (!releaseMonth) throw new Error("Please select a release month.");
+
+      // Insert record
+      const { error: insertError } = await supabase.from("chit_releases").insert({
+        group_id: groupId,
+        member_id: memberId,
+        amount: Number(amount),
+        release_month: `${releaseMonth}-01T00:00:00.000Z`, // Store as timestamp
+        payment_mode: paymentMode,
+        remarks: remarks.trim() || null,
+        released_at: new Date().toISOString(),
       });
 
-      if (error) throw error;
-      
-      form.reset();
+      if (insertError) throw insertError;
+
       onSuccess();
-      onOpenChange(false);
-    } catch (error: any) {
-      console.error("Error recording release:", error);
-      alert(error.message || "Failed to record release.");
+      handleClose();
+    } catch (err: any) {
+      console.error("Error recording release:", err);
+      setError(err.message || "Failed to record payout release.");
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] p-6 bg-white rounded-2xl gap-6 max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-slate-900 display-font">
-            Record Chit Release
-          </DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+      {/* Backdrop overlay */}
+      <div className="absolute inset-0 bg-plum/40 backdrop-blur-sm" onClick={handleClose} />
+      
+      {/* Modal card */}
+      <div className="bg-milk w-full max-w-[480px] rounded-lg shadow-plum-lg animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-250 relative z-10 overflow-hidden border border-plum/20 text-plum font-body-md">
+        
+        {/* Header */}
+        <div className="px-6 py-5 bg-plum text-milk border-b border-milk/10 flex justify-between items-center">
+          <div>
+            <h3 className="text-base font-extrabold text-milk">Record Prize Release</h3>
+            <p className="text-[10px] text-milk/60 mt-0.5 font-bold font-geist">Disburse chit funds to auction winners</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="p-1.5 hover:bg-milk/10 rounded-lg text-milk/80 hover:text-milk transition-all duration-200 active:scale-90 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
-        <Form {...(form as any)}>
-          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-5">
-            <FormField
-              control={form.control as any}
-              name="groupId"
-              render={({ field }: { field: any }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-900 font-semibold">Group</FormLabel>
-                  <Select onValueChange={(val) => {
-                    field.onChange(val);
-                    form.setValue("memberId", "");
-                  }} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="border-slate-300 focus:border-slate-900 focus:ring-slate-900 h-11">
-                        <SelectValue placeholder="Select a group" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {groups.map(g => (
-                        <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control as any}
-              name="memberId"
-              render={({ field }: { field: any }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-900 font-semibold">Winner (Member)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!selectedGroupId}>
-                    <FormControl>
-                      <SelectTrigger className="border-slate-300 focus:border-slate-900 focus:ring-slate-900 h-11">
-                        <SelectValue placeholder="Select winner" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {filteredMembers.map(m => (
-                        <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control as any}
-                name="amount"
-                render={({ field }: { field: any }) => (
-                  <FormItem>
-                    <FormLabel className="text-slate-900 font-semibold">Release Amount</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <Input 
-                          type="number"
-                          placeholder="0.00" 
-                          className="pl-9 border-slate-300 focus-visible:ring-slate-900 h-11 tabular-nums font-medium text-lg" 
-                          {...field} 
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control as any}
-                name="releaseMonth"
-                render={({ field }: { field: any }) => (
-                  <FormItem className="flex flex-col pt-2">
-                    <FormLabel className="text-slate-900 font-semibold mb-1">Release Month</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full h-11 pl-3 text-left font-normal border-slate-300",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "MMM yyyy")
-                            ) : (
-                              <span>Pick month</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date: Date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          
+          {error && (
+            <div className="bg-plum text-milk text-xs font-bold p-4 rounded-lg border border-milk/10 shadow-milk-sm">
+              {error}
             </div>
+          )}
 
-            <FormField
-              control={form.control as any}
-              name="mode"
-              render={({ field }: { field: any }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel className="text-slate-900 font-semibold">Payout Mode</FormLabel>
-                  <FormControl>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { id: "upi", label: "UPI" },
-                        { id: "cash", label: "Cash" },
-                        { id: "bank_transfer", label: "Bank Transfer" },
-                      ].map((modeOption) => {
-                        const isActive = field.value === modeOption.id;
-                        return (
-                          <button
-                            key={modeOption.id}
-                            type="button"
-                            onClick={() => field.onChange(modeOption.id)}
-                            className={cn(
-                              "px-4 py-2 rounded-full text-sm font-semibold transition-colors border",
-                              isActive 
-                                ? "bg-slate-900 text-white border-slate-900" 
-                                : "bg-white text-slate-600 border-slate-300 hover:bg-slate-50"
-                            )}
-                          >
-                            {modeOption.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control as any}
-              name="remarks"
-              render={({ field }: { field: any }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-900 font-semibold">Remarks (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Any notes..." className="border-slate-300 focus-visible:ring-slate-900" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-3 pt-4 mt-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => onOpenChange(false)}
-                className="border-slate-300 text-slate-900 font-semibold"
-                disabled={isSubmitting}
+          {/* Group selector */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Chit Group</label>
+            <div className="relative">
+              <Landmark className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 pointer-events-none" />
+              <select
+                required
+                disabled={!!preselectedGroupId}
+                value={groupId}
+                onChange={(e) => {
+                  setGroupId(e.target.value);
+                  setMemberId("");
+                }}
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk disabled:bg-plum/5 disabled:text-plum/70 shadow-plum-sm appearance-none cursor-pointer"
               >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Confirm Release
-              </Button>
+                <option value="">Select a chit group</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
             </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          </div>
+
+          {/* Member selector */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Auction Winner Member</label>
+            <div className="relative">
+              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 pointer-events-none" />
+              <select
+                required
+                disabled={!groupId}
+                value={memberId}
+                onChange={(e) => setMemberId(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk disabled:bg-plum/5 disabled:text-plum/70 shadow-plum-sm appearance-none cursor-pointer"
+              >
+                <option value="">Select winner</option>
+                {filteredMembers.map((m) => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Release Month input */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Auction Month</label>
+            <div className="relative">
+              <Calendar className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 pointer-events-none" />
+              <input
+                type="month"
+                required
+                value={releaseMonth}
+                onChange={(e) => setReleaseMonth(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk shadow-plum-sm font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Payout amount */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Prize Amount Released (₹)</label>
+            <div className="relative group">
+              <Coins className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 group-focus-within:text-plum transition-colors duration-200" />
+              <input
+                type="number"
+                required
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk shadow-plum-sm font-mono placeholder:text-plum/40"
+              />
+            </div>
+          </div>
+
+          {/* Payment Mode */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Disbursement Mode</label>
+            <div className="relative">
+              <CreditCard className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-plum/50 pointer-events-none" />
+              <select
+                required
+                value={paymentMode}
+                onChange={(e) => setPaymentMode(e.target.value as "cash" | "upi" | "bank_transfer")}
+                className="w-full pl-10 pr-4 py-2.5 text-sm input-milk shadow-plum-sm appearance-none cursor-pointer"
+              >
+                <option value="cash">CASH</option>
+                <option value="upi">UPI</option>
+                <option value="bank_transfer">BANK TRANSFER</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Remarks input */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider block">Remarks (Optional)</label>
+            <div className="relative group">
+              <MessageSquare className="w-4 h-4 absolute left-3.5 top-3 text-plum/50 group-focus-within:text-plum transition-colors duration-200" />
+              <textarea
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                placeholder="Auction bidding margins or notes..."
+                rows={2}
+                className="w-full pl-10 pr-4 py-2 text-sm input-milk shadow-plum-sm resize-none placeholder:text-plum/40"
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-plum/10">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={loading}
+              className="px-4 py-2 btn-milk"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 btn-plum flex items-center gap-1.5 disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  Recording...
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                </>
+              ) : (
+                "Release Payout"
+              )}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
   );
 }

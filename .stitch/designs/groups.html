@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ChitLedger | Chit Groups</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#dc2626",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "primary-fixed": "#d8e2fc",
+                        "surface-dim": "#f1f5f9",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#45474c",
+                        "on-primary-fixed": "#111c2e",
+                        "on-primary-container": "#8590a6",
+                        "primary-container": "#1e293b",
+                        "surface": "#fbf8fa",
+                        "surface-tint": "#545f74",
+                        "on-secondary-container": "#fefcff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#dbeafe",
+                        "surface-variant": "#e4e2e3",
+                        "on-tertiary-fixed": "#131b2e",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#f3f0f2",
+                        "surface-container-low": "#f6f3f5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#dae2fd",
+                        "outline": "#94a3b8",
+                        "surface-container-high": "#eae7e9",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "surface-container": "#f0edef",
+                        "on-primary": "#ffffff",
+                        "background": "#fbf8fa",
+                        "surface-bright": "#fbf8fa",
+                        "primary-fixed-dim": "#bcc7df",
+                        "on-tertiary-container": "#7c839b",
+                        "on-background": "#1b1b1d",
+                        "inverse-primary": "#bcc7df",
+                        "primary": "#000000",
+                        "surface-container-highest": "#e4e2e3",
+                        "secondary": "#0051d5",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#3d475b",
+                        "outline-variant": "#c5c6cd",
+                        "on-secondary-fixed": "#00174b",
+                        "inverse-surface": "#303032",
+                        "on-surface": "#1b1b1d",
+                        "tertiary-container": "#131b2e",
+                        "tertiary": "#000000",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sidebar-width": "260px",
+                        "base": "8px",
+                        "gutter": "16px",
+                        "container-margin": "24px",
+                        "margin": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-mono": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f1f5f9; /* Slate-50 as per Level 0 Canvas */
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .data-table-compact td, .data-table-compact th {
+            padding: 8px 12px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-background">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full w-sidebar-width bg-primary-container text-secondary-fixed border-r border-outline-variant flex flex-col p-gutter">
+<div class="mb-10 px-2">
+<h1 class="font-headline-lg text-headline-lg text-on-primary">ChitLedger</h1>
+<p class="text-on-primary-container text-body-sm">Institutional Ledger</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-3 py-2 text-on-primary-container hover:text-white hover:bg-surface-variant/10 transition-colors duration-200 cursor-pointer rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<!-- Groups (ACTIVE) -->
+<a class="flex items-center gap-3 px-3 py-2 text-white bg-secondary rounded-xl duration-200 cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-body-md text-body-md">Groups</span>
+</a>
+<!-- Members -->
+<a class="flex items-center gap-3 px-3 py-2 text-on-primary-container hover:text-white hover:bg-surface-variant/10 transition-colors duration-200 cursor-pointer rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-body-md text-body-md">Members</span>
+</a>
+<!-- Pending Dues -->
+<a class="flex items-center gap-3 px-3 py-2 text-on-primary-container hover:text-white hover:bg-surface-variant/10 transition-colors duration-200 cursor-pointer rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body-md text-body-md">Pending Dues</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-3 py-2 text-on-primary-container hover:text-white hover:bg-surface-variant/10 transition-colors duration-200 cursor-pointer rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant/20 pt-4 px-2">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full border border-outline-variant bg-surface-container-high object-cover" data-alt="A professional corporate portrait of a financial administrator in a clean modern office, soft natural lighting, high-end institutional photography style, muted professional colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASG98hzCCMc5UuE4XXK2-pldRzP2tUQIUlNjxsni7RRg_6LWsxcktktIWsy5yQFaFs1HX0vdEMrnaOgTEseyN4rI_v5-3QrSOilnhhcZGfh2bWD3cweBEbfCucn-ucraSywR83tI1ugWYVHz5dVPZ9C8pazZCIHOqpMhiGzujjkgIA6l31pArP7Zc2WtYIpXR6_LY2u1hPvB87naaGUklcoBs0N1yf-1RXMHBz5momzQVrA8t1Nr7ZX7Ey4eEEU0Eytg4Zxvk6ouM"/>
+<div class="overflow-hidden">
+<p class="text-white font-body-md truncate">Admin User</p>
+<p class="text-on-primary-container text-body-sm truncate">Super Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[260px] min-h-screen flex flex-col">
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 right-0 w-[calc(100%-260px)] h-16 bg-surface border-b border-outline-variant z-10 flex justify-between items-center px-container-margin">
+<div class="flex items-center gap-6">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Chit Groups</h2>
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-secondary focus:border-transparent outline-none w-64 transition-all" placeholder="Search groups..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-secondary transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-secondary transition-colors" data-icon="help">help</button>
+<button class="bg-secondary text-white px-4 py-2 rounded-lg font-body-md font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                    Create Group
+                </button>
+</div>
+</header>
+<!-- Content Canvas -->
+<section class="mt-16 p-container-margin flex-1">
+<!-- Summary Bento/Stat Row (Bonus for Institutional Look) -->
+<div class="grid grid-cols-4 gap-gutter mb-gutter">
+<div class="bg-surface-container-lowest p-gutter border border-outline-variant rounded-xl shadow-sm">
+<p class="text-on-surface-variant font-label-caps uppercase mb-1">Total Assets</p>
+<p class="font-headline-lg text-headline-lg font-data-mono">₹18,50,000</p>
+</div>
+<div class="bg-surface-container-lowest p-gutter border border-outline-variant rounded-xl shadow-sm">
+<p class="text-on-surface-variant font-label-caps uppercase mb-1">Active Groups</p>
+<p class="font-headline-lg text-headline-lg font-data-mono">03</p>
+</div>
+<div class="bg-surface-container-lowest p-gutter border border-outline-variant rounded-xl shadow-sm">
+<p class="text-on-surface-variant font-label-caps uppercase mb-1">Total Members</p>
+<p class="font-headline-lg text-headline-lg font-data-mono">72</p>
+</div>
+<div class="bg-surface-container-lowest p-gutter border border-outline-variant rounded-xl shadow-sm">
+<p class="text-on-surface-variant font-label-caps uppercase mb-1">Collection Rate</p>
+<p class="font-headline-lg text-headline-lg font-data-mono">98.4%</p>
+</div>
+</div>
+<!-- Level 1 Card: Main Data Table -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+<div class="px-gutter py-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h3 class="font-headline-md text-on-surface">Group Inventory</h3>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 border border-outline text-body-sm font-semibold rounded flex items-center gap-1 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="filter_list">filter_list</span>
+                            Filter
+                        </button>
+<button class="px-3 py-1.5 border border-outline text-body-sm font-semibold rounded flex items-center gap-1 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="download">download</span>
+                            Export
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left data-table-compact border-collapse">
+<thead class="bg-surface-container-high border-b border-outline-variant">
+<tr>
+<th class="font-label-caps text-on-surface-variant py-3 px-gutter">Group Name</th>
+<th class="font-label-caps text-on-surface-variant py-3 px-gutter">Start Date</th>
+<th class="font-label-caps text-on-surface-variant py-3 px-gutter">End Date</th>
+<th class="font-label-caps text-on-surface-variant py-3 px-gutter text-right">Value (₹)</th>
+<th class="font-label-caps text-on-surface-variant py-3 px-gutter text-center">Status</th>
+<th class="font-label-caps text-on-surface-variant py-3 px-gutter text-center">Members</th>
+<th class="font-label-caps text-on-surface-variant py-3 px-gutter text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Alpha Group -->
+<tr class="hover:bg-surface-dim transition-colors cursor-pointer group">
+<td class="font-body-md font-semibold text-primary py-4 px-gutter">Alpha Group</td>
+<td class="font-data-mono text-on-surface-variant py-4 px-gutter">2023-10-01</td>
+<td class="font-data-mono text-on-surface-variant py-4 px-gutter">2025-10-01</td>
+<td class="font-data-mono text-primary py-4 px-gutter text-right">5,00,000</td>
+<td class="py-4 px-gutter text-center">
+<span class="bg-green-100 text-green-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Active</span>
+</td>
+<td class="font-body-md text-on-surface-variant py-4 px-gutter text-center">20/20</td>
+<td class="py-4 px-gutter text-right">
+<a class="text-secondary font-semibold text-body-sm hover:underline" href="#">View Details</a>
+</td>
+</tr>
+<!-- Beta Group -->
+<tr class="hover:bg-surface-dim transition-colors cursor-pointer group">
+<td class="font-body-md font-semibold text-primary py-4 px-gutter">Beta Group</td>
+<td class="font-data-mono text-on-surface-variant py-4 px-gutter">2024-01-01</td>
+<td class="font-data-mono text-on-surface-variant py-4 px-gutter">2026-01-01</td>
+<td class="font-data-mono text-primary py-4 px-gutter text-right">10,00,000</td>
+<td class="py-4 px-gutter text-center">
+<span class="bg-green-100 text-green-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Active</span>
+</td>
+<td class="font-body-md text-on-surface-variant py-4 px-gutter text-center">20/20</td>
+<td class="py-4 px-gutter text-right">
+<a class="text-secondary font-semibold text-body-sm hover:underline" href="#">View Details</a>
+</td>
+</tr>
+<!-- Gamma Group -->
+<tr class="hover:bg-surface-dim transition-colors cursor-pointer group">
+<td class="font-body-md font-semibold text-primary py-4 px-gutter">Gamma Group</td>
+<td class="font-data-mono text-on-surface-variant py-4 px-gutter">2024-05-01</td>
+<td class="font-data-mono text-on-surface-variant py-4 px-gutter">2026-05-01</td>
+<td class="font-data-mono text-primary py-4 px-gutter text-right">2,50,000</td>
+<td class="py-4 px-gutter text-center">
+<span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Filling</span>
+</td>
+<td class="font-body-md text-on-surface-variant py-4 px-gutter text-center">12/20</td>
+<td class="py-4 px-gutter text-right">
+<a class="text-secondary font-semibold text-body-sm hover:underline" href="#">View Details</a>
+</td>
+</tr>
+<!-- Delta Group -->
+<tr class="hover:bg-surface-dim transition-colors cursor-pointer group">
+<td class="font-body-md font-semibold text-primary py-4 px-gutter">Delta Group</td>
+<td class="font-data-mono text-on-surface-variant py-4 px-gutter">2022-01-01</td>
+<td class="font-data-mono text-on-surface-variant py-4 px-gutter">2024-01-01</td>
+<td class="font-data-mono text-primary py-4 px-gutter text-right">1,00,000</td>
+<td class="py-4 px-gutter text-center">
+<span class="bg-slate-200 text-slate-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Completed</span>
+</td>
+<td class="font-body-md text-on-surface-variant py-4 px-gutter text-center">20/20</td>
+<td class="py-4 px-gutter text-right">
+<a class="text-secondary font-semibold text-body-sm hover:underline" href="#">View Details</a>
+</td>
+</tr>
+<!-- Dummy padding rows for density feel -->
+<tr class="bg-surface-container-lowest h-12">
+<td colspan="7"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-gutter border-t border-outline-variant bg-surface-container-low flex justify-between items-center">
+<p class="text-body-sm text-on-surface-variant">Showing 4 of 48 groups</p>
+<div class="flex gap-1">
+<button class="p-1 border border-outline-variant rounded bg-white hover:bg-surface-dim disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="px-3 py-1 border border-secondary bg-secondary text-white rounded text-body-sm font-semibold">1</button>
+<button class="px-3 py-1 border border-outline-variant bg-white text-on-surface-variant rounded text-body-sm font-semibold hover:bg-surface-dim">2</button>
+<button class="px-3 py-1 border border-outline-variant bg-white text-on-surface-variant rounded text-body-sm font-semibold hover:bg-surface-dim">3</button>
+<button class="p-1 border border-outline-variant rounded bg-white hover:bg-surface-dim">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Subtle Background Animation for Professional Atmosphere -->
+<div class="fixed bottom-0 right-0 w-1/3 h-1/3 -z-10 opacity-10 pointer-events-none">
+<svg viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<path d="M47.7,-62.3C60.2,-54.2,67.6,-38.7,72.4,-22.5C77.2,-6.4,79.5,10.3,73.4,24.1C67.3,37.8,52.8,48.5,38.3,58.7C23.8,68.8,9.2,78.4,-6.2,86.9C-21.7,95.4,-38,102.8,-51.2,97.3C-64.4,91.8,-74.6,73.4,-79.1,55.4C-83.5,37.3,-82.3,19.6,-79.8,2.5C-77.3,-14.6,-73.4,-31.1,-64.1,-43.5C-54.8,-55.9,-40.1,-64.2,-25.9,-69.8C-11.7,-75.4,2,-78.3,16.4,-75.4C30.8,-72.5,35.2,-70.5,47.7,-62.3Z" fill="#0051d5" transform="translate(100 100)"></path>
+</svg>
+</div>
+</main>
+<script>
+        // Simple row hover interaction logic
+        document.querySelectorAll('tr.group').forEach(row => {
+            row.addEventListener('click', () => {
+                console.log('Navigating to group details...');
+            });
+        });
+
+        // Theme toggle or other micro-interactions could be added here
+    </script>
+</body></html>
