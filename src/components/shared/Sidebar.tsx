@@ -14,11 +14,23 @@ import {
   Settings, 
   LogOut 
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Sidebar() {
   const { signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Implement body scroll lock when mobile menu drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const navItems = [
     { to: "/", icon: LayoutDashboard, label: "Dashboard", end: true },
@@ -32,26 +44,26 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
+      {/* Mobile Toggle Button (Guaranteed 44px x 44px touch target) */}
       <button 
-        className="md:hidden fixed top-3.5 left-4 z-[60] p-2 bg-milk text-plum rounded-lg shadow-plum-sm border border-plum/20 hover:bg-milk/95 transition-all duration-200 active:scale-95 cursor-pointer"
+        className="md:hidden fixed top-3 left-4 z-[60] p-2.5 bg-milk text-plum rounded-lg shadow-plum-sm border border-plum/20 hover:bg-milk/95 transition-all duration-200 active:scale-95 cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle Sidebar"
       >
-        {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* Overlay Backdrop */}
+      {/* Overlay Backdrop (z-40 to remain below the sidebar container z-50) */}
       {isOpen && (
         <div 
-          className="md:hidden fixed inset-0 bg-plum/30 backdrop-blur-xs z-[45] animate-in fade-in duration-200"
+          className="md:hidden fixed inset-0 bg-plum/30 backdrop-blur-xs z-40 animate-in fade-in duration-200"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Sidebar container */}
+      {/* Sidebar container (z-50 above backdrop and header) */}
       <nav className={`
-        fixed left-0 top-0 h-full w-[260px] bg-plum flex flex-col pt-16 pb-6 px-4 z-40 border-r border-milk/10 shadow-milk-lg
+        fixed left-0 top-0 h-full w-[260px] bg-plum flex flex-col pt-16 pb-6 px-4 z-50 border-r border-milk/10 shadow-milk-lg
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
@@ -81,7 +93,7 @@ export function Sidebar() {
                 end={item.end}
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) => `
-                  group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 ease-in-out active:scale-[0.97] relative text-[13px] font-bold cursor-pointer
+                  group flex items-center gap-2.5 px-3.5 py-3 rounded-lg transition-all duration-200 ease-in-out active:scale-[0.97] relative text-[13px] font-bold cursor-pointer min-h-[44px]
                   ${isActive 
                     ? 'bg-milk text-plum shadow-milk-sm translate-x-1 pl-2.5' 
                     : 'text-milk/75 hover:text-milk hover:bg-milk/10 hover:translate-x-0.5'
@@ -108,7 +120,7 @@ export function Sidebar() {
               to="/settings"
               onClick={() => setIsOpen(false)}
               className={({ isActive }) => `
-                group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 ease-in-out active:scale-[0.97] relative text-[13px] font-bold cursor-pointer
+                group flex items-center gap-2.5 px-3.5 py-3 rounded-lg transition-all duration-200 ease-in-out active:scale-[0.97] relative text-[13px] font-bold cursor-pointer min-h-[44px]
                 ${isActive 
                   ? 'bg-milk text-plum shadow-milk-sm translate-x-1 pl-2.5' 
                   : 'text-milk/75 hover:text-milk hover:bg-milk/10 hover:translate-x-0.5'
@@ -132,8 +144,11 @@ export function Sidebar() {
         {/* Footer Log Out Area */}
         <div className="mt-auto pt-4 border-t border-milk/10 px-1">
           <button 
-            onClick={() => signOut()}
-            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-milk/90 hover:bg-milk/10 hover:text-milk transition-all duration-200 ease-in-out active:scale-[0.97] text-[13px] font-bold cursor-pointer hover:translate-x-0.5"
+            onClick={() => {
+              setIsOpen(false);
+              signOut();
+            }}
+            className="flex items-center gap-2.5 w-full px-3.5 py-3 rounded-lg text-milk/90 hover:bg-milk/10 hover:text-milk transition-all duration-200 ease-in-out active:scale-[0.97] text-[13px] font-bold cursor-pointer hover:translate-x-0.5 min-h-[44px]"
           >
             <LogOut className="w-4 h-4 shrink-0 transition-all duration-200 group-hover:scale-105" />
             <span className="tracking-tight">Sign Out Session</span>
